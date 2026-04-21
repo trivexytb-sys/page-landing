@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>L&A IA SAV — Agent IA pour commerces suisses</title>
+<title>TrivexIA SAV — Agent IA pour commerces suisses</title>
 <meta name="description" content="Installez un agent IA qui répond à vos clients 24/7. Pour coiffeurs, spas, restaurants et PME en Suisse romande." />
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -21,7 +21,7 @@
   <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
     <a href="#" class="flex items-center gap-2">
       <div class="w-9 h-9 rounded-lg gradient-bg flex items-center justify-center text-white font-bold">C</div>
-      <span class="font-bold text-xl">L&A IA<span class="text-blue-600">.</span></span>
+      <span class="font-bold text-xl">TrivexIA<span class="text-blue-600">.</span></span>
     </a>
     <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
       <a href="#produits" class="hover:text-blue-600">Produits</a>
@@ -47,7 +47,7 @@
         <span class="text-blue-200">24 heures sur 24.</span>
       </h1>
       <p class="text-xl text-blue-100 mb-8 leading-relaxed">
-        Horaires, services, tarifs, réservations : votre agent L&A IA répond instantanément
+        Horaires, services, tarifs, réservations : votre agent TrivexIA répond instantanément
         sur votre site ou WhatsApp. Vos clients ne partent plus parce qu'ils n'ont pas eu
         de réponse le soir.
       </p>
@@ -125,7 +125,7 @@
           </div>
           <div class="bg-blue-600 text-white rounded-xl p-4 max-w-[85%] ml-auto">
             <p class="text-sm">Bonjour 👋 Oui, nous sommes ouverts demain de 9h à 19h. Pour une coupe + barbe (1h), il me reste un créneau à 10h15 ou 15h30. Je peux vous réserver lequel ?</p>
-            <p class="text-xs text-blue-200 mt-1">Agent L&A IA · 22:47 · réponse en 2s</p>
+            <p class="text-xs text-blue-200 mt-1">Agent TrivexIA · 22:47 · réponse en 2s</p>
           </div>
           <div class="bg-slate-100 rounded-xl p-4 max-w-[85%]">
             <p class="text-sm text-slate-700">Parfait, 15h30 svp</p>
@@ -279,7 +279,7 @@
     </p>
 
     <!-- Formulaire -->
-    <form action="mailto:trivex.ytb@gmail.com" method="post" enctype="text/plain" class="bg-white rounded-2xl p-6 md:p-8 text-left text-slate-900 max-w-2xl mx-auto">
+    <form id="demo-form" onsubmit="envoyerViaMailto(event)" class="bg-white rounded-2xl p-6 md:p-8 text-left text-slate-900 max-w-2xl mx-auto">
       <div class="grid md:grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-semibold mb-1">Votre commerce</label>
@@ -366,7 +366,7 @@
   <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
     <div class="flex items-center gap-2">
       <div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white font-bold text-sm">C</div>
-      <span class="font-bold text-white">L&A IA</span>
+      <span class="font-bold text-white">TrivexIA</span>
       <span class="text-sm">· Fribourg, Suisse</span>
     </div>
     <div class="text-sm">
@@ -374,6 +374,44 @@
     </div>
   </div>
 </footer>
+<script>
+  function envoyerViaMailto(event) {
+    event.preventDefault();
+    const f = event.target;
+    const destinataire = "trivex.ytb@gmail.com";
+    const commerce = f.commerce.value.trim();
+    const prenom   = f.prenom.value.trim();
+    const email    = f.email.value.trim();
+    const tel      = f.tel.value.trim();
+    const message  = f.message.value.trim();
 
+    const sujet = `Demande de démo - ${commerce}`;
+    const corps =
+      `Bonjour Trivex,\n\n` +
+      `Je souhaite une démo de votre agent IA.\n\n` +
+      `Commerce : ${commerce}\n` +
+      `Prénom : ${prenom}\n` +
+      `Email : ${email}\n` +
+      `Téléphone / WhatsApp : ${tel}\n\n` +
+      `Message :\n${message || "(pas de message)"}\n\n` +
+      `Merci,\n${prenom}`;
+
+    const url = `mailto:${destinataire}`
+              + `?subject=${encodeURIComponent(sujet)}`
+              + `&body=${encodeURIComponent(corps)}`;
+    window.location.href = url;
+
+    setTimeout(() => {
+      const resume = `${corps}\n\nAdresse: ${destinataire}`;
+      if (navigator.clipboard) navigator.clipboard.writeText(resume).catch(() => {});
+      alert(
+        "Votre client email devrait s'ouvrir avec un message pré-rempli.\n\n" +
+        "Si rien ne se passe, écrivez-nous directement à " + destinataire
+      );
+    }, 800);
+  }
+</script>
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%233b82f6'/%3E%3Ctext x='50' y='68' font-family='Arial' font-size='60' font-weight='bold' text-anchor='middle' fill='white'%3EC%3C/text%3E%3C/svg%3E">
 </body>
 </html>
