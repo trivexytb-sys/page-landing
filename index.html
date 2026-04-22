@@ -3,15 +3,25 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>TrivexIA SAV — Agent IA pour commerces suisses</title>
+<title>Cortex SAV — Agent IA pour commerces suisses</title>
 <meta name="description" content="Installez un agent IA qui répond à vos clients 24/7. Pour coiffeurs, spas, restaurants et PME en Suisse romande." />
 <script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
   html { scroll-behavior: smooth; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-  .gradient-bg { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
+  body { font-family: 'DM Sans', sans-serif; }
+  h1,h2,h3,h4,.font-display { font-family: 'Syne', sans-serif; }
+  .gradient-bg { background: linear-gradient(135deg, #0f2460 0%, #1e40af 100%); }
   .card-hover { transition: transform .2s, box-shadow .2s; }
   .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,.1); }
+  .badge-new { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.7} }
+  details summary::-webkit-details-marker { display: none; }
+  /* Admin panel */
+  #admin-panel { display: none; }
+  #admin-panel.open { display: block; }
+  .star-btn { cursor: pointer; transition: color .1s; }
+  .star-btn:hover, .star-btn.active { color: #f59e0b; }
 </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
@@ -20,14 +30,14 @@
 <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200">
   <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
     <a href="#" class="flex items-center gap-2">
-      <div class="w-9 h-9 rounded-lg gradient-bg flex items-center justify-center text-white font-bold">C</div>
-      <span class="font-bold text-xl">TrivexIA<span class="text-blue-600">.</span></span>
+      <div class="w-9 h-9 rounded-lg gradient-bg flex items-center justify-center text-white font-bold font-display">C</div>
+      <span class="font-bold text-xl font-display">Cortex<span class="text-blue-600">.</span></span>
     </a>
     <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-      <a href="#produits" class="hover:text-blue-600">Produits</a>
-      <a href="#comment" class="hover:text-blue-600">Comment ça marche</a>
-      <a href="#temoignages" class="hover:text-blue-600">Témoignages</a>
-      <a href="#tarifs" class="hover:text-blue-600">Tarifs</a>
+      <a href="#produits" class="hover:text-blue-600 transition">Produits</a>
+      <a href="#comment" class="hover:text-blue-600 transition">Comment ça marche</a>
+      <a href="#temoignages" class="hover:text-blue-600 transition">Témoignages</a>
+      <a href="#tarifs" class="hover:text-blue-600 transition">Tarifs</a>
     </div>
     <a href="#demo" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-semibold transition">
       Demander une démo
@@ -47,7 +57,7 @@
         <span class="text-blue-200">24 heures sur 24.</span>
       </h1>
       <p class="text-xl text-blue-100 mb-8 leading-relaxed">
-        Horaires, services, tarifs, réservations : votre agent TrivexIA répond instantanément
+        Horaires, services, tarifs, réservations : votre agent Cortex répond instantanément
         sur votre site ou WhatsApp. Vos clients ne partent plus parce qu'ils n'ont pas eu
         de réponse le soir.
       </p>
@@ -62,21 +72,6 @@
       <p class="mt-6 text-sm text-blue-200">
         ✓ Installation en 3-5 jours &nbsp;&nbsp; ✓ Sans engagement &nbsp;&nbsp; ✓ Support en français
       </p>
-    </div>
-  </div>
-</section>
-
-<!-- BANDEAU PREUVE SOCIALE -->
-<section class="bg-white border-b border-slate-200">
-  <div class="max-w-6xl mx-auto px-6 py-8">
-    <p class="text-center text-sm text-slate-500 uppercase tracking-wider mb-4 font-semibold">
-      Déjà utilisé par des commerces à Fribourg
-    </p>
-    <div class="flex flex-wrap justify-center gap-8 text-slate-400 text-sm md:text-base font-medium">
-      <span class="opacity-70">[Logo client 1]</span>
-      <span class="opacity-70">[Logo client 2]</span>
-      <span class="opacity-70">[Logo client 3]</span>
-      <span class="opacity-70">[Logo client 4]</span>
     </div>
   </div>
 </section>
@@ -125,7 +120,7 @@
           </div>
           <div class="bg-blue-600 text-white rounded-xl p-4 max-w-[85%] ml-auto">
             <p class="text-sm">Bonjour 👋 Oui, nous sommes ouverts demain de 9h à 19h. Pour une coupe + barbe (1h), il me reste un créneau à 10h15 ou 15h30. Je peux vous réserver lequel ?</p>
-            <p class="text-xs text-blue-200 mt-1">Agent TrivexIA · 22:47 · réponse en 2s</p>
+            <p class="text-xs text-blue-200 mt-1">Agent Cortex · 22:47 · réponse en 2s</p>
           </div>
           <div class="bg-slate-100 rounded-xl p-4 max-w-[85%]">
             <p class="text-sm text-slate-700">Parfait, 15h30 svp</p>
@@ -145,62 +140,71 @@
     <div class="text-center mb-14">
       <h2 class="text-3xl md:text-4xl font-bold mb-4">Trois agents, un seul objectif</h2>
       <p class="text-lg text-slate-600 max-w-2xl mx-auto">
-        Commencez avec l'essentiel. Ajoutez les autres quand vous êtes prêt. Chaque produit s'active indépendamment.
+        Commencez avec l'essentiel. Ajoutez les autres quand vous êtes prêt.
       </p>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-6">
+    <div class="grid md:grid-cols-3 gap-6" id="tarifs">
+
       <!-- Produit 1 -->
-      <div class="bg-white rounded-2xl p-8 border-2 border-slate-200 card-hover">
+      <div class="bg-white rounded-2xl p-8 border-2 border-slate-200 card-hover flex flex-col">
         <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center mb-4">
           <span class="text-2xl">💬</span>
         </div>
-        <h3 class="text-xl font-bold mb-2">Agent SAV</h3>
+        <h3 class="text-xl font-bold mb-1">Agent SAV</h3>
         <p class="text-sm text-slate-500 mb-4">Répond aux questions 24/7</p>
-        <p class="text-slate-700 mb-6">
-          Horaires, prestations, tarifs, adresse, services. L'agent répond instantanément
-          sur WhatsApp ou votre site web.
+        <p class="text-slate-700 mb-6 flex-1">
+          Horaires, prestations, tarifs, adresse. L'agent répond instantanément sur votre site ou via un lien partageable.
         </p>
-        <div class="border-t border-slate-200 pt-4">
-          <p class="text-3xl font-bold">290 CHF<span class="text-sm font-normal text-slate-500"> d'installation</span></p>
-          <p class="text-sm text-slate-600">+ 19 CHF/mois d'abonnement</p>
+        <div class="border-t border-slate-200 pt-4 space-y-1">
+          <p class="text-3xl font-bold">150 CHF <span class="text-sm font-normal text-slate-500">installation</span></p>
+          <p class="text-sm text-slate-500">puis <span class="font-semibold text-slate-700">19 CHF/mois</span> — résiliable à tout moment</p>
+          <p class="text-xs text-green-600 font-medium mt-2">✓ Pilote gratuit 2 semaines disponible</p>
         </div>
       </div>
 
       <!-- Produit 2 -->
-      <div class="bg-white rounded-2xl p-8 border-2 border-blue-500 card-hover relative shadow-lg">
+      <div class="bg-white rounded-2xl p-8 border-2 border-blue-500 card-hover relative shadow-lg flex flex-col">
         <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-bold px-4 py-1 rounded-full">POPULAIRE</span>
         <div class="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center mb-4">
           <span class="text-2xl">📅</span>
         </div>
-        <h3 class="text-xl font-bold mb-2">Agent Prise de RDV</h3>
+        <h3 class="text-xl font-bold mb-1">Agent Prise de RDV</h3>
         <p class="text-sm text-slate-500 mb-4">Réservations automatiques</p>
-        <p class="text-slate-700 mb-6">
-          L'agent prend les RDV en direct, synchronise avec votre Google Calendar, envoie les confirmations.
-          Vous ne passez plus 1h/jour au téléphone.
+        <p class="text-slate-700 mb-6 flex-1">
+          L'agent prend les RDV en direct, synchronise avec votre Google Calendar, envoie les confirmations. Vous ne passez plus 1h/jour au téléphone.
         </p>
-        <div class="border-t border-slate-200 pt-4">
-          <p class="text-3xl font-bold">490 CHF<span class="text-sm font-normal text-slate-500"> d'installation</span></p>
-          <p class="text-sm text-slate-600">+ 49 CHF/mois d'abonnement</p>
+        <div class="border-t border-slate-200 pt-4 space-y-1">
+          <p class="text-3xl font-bold">290 CHF <span class="text-sm font-normal text-slate-500">installation</span></p>
+          <p class="text-sm text-slate-500">puis <span class="font-semibold text-slate-700">39 CHF/mois</span> — résiliable à tout moment</p>
+          <p class="text-xs text-blue-600 font-medium mt-2">✓ Inclus : Agent SAV + Booking</p>
         </div>
       </div>
 
       <!-- Produit 3 -->
-      <div class="bg-white rounded-2xl p-8 border-2 border-slate-200 card-hover">
+      <div class="bg-white rounded-2xl p-8 border-2 border-slate-200 card-hover flex flex-col">
         <div class="w-12 h-12 rounded-lg bg-amber-100 flex items-center justify-center mb-4">
           <span class="text-2xl">🎯</span>
         </div>
-        <h3 class="text-xl font-bold mb-2">Agent Lead Qualif.</h3>
+        <h3 class="text-xl font-bold mb-1">Agent Lead Qualif.</h3>
         <p class="text-sm text-slate-500 mb-4">Pour agences &amp; PME</p>
-        <p class="text-slate-700 mb-6">
-          L'agent qualifie vos leads entrants, filtre les prospects froids, transmet uniquement
-          les demandes chaudes avec résumé à votre équipe.
+        <p class="text-slate-700 mb-6 flex-1">
+          L'agent qualifie vos leads entrants, filtre les prospects froids, transmet uniquement les demandes chaudes avec résumé à votre équipe.
         </p>
-        <div class="border-t border-slate-200 pt-4">
-          <p class="text-3xl font-bold">1'200 CHF<span class="text-sm font-normal text-slate-500"> d'installation</span></p>
-          <p class="text-sm text-slate-600">+ 149 CHF/mois d'abonnement</p>
+        <div class="border-t border-slate-200 pt-4 space-y-1">
+          <p class="text-3xl font-bold">490 CHF <span class="text-sm font-normal text-slate-500">installation</span></p>
+          <p class="text-sm text-slate-500">puis <span class="font-semibold text-slate-700">79 CHF/mois</span> — résiliable à tout moment</p>
+          <p class="text-xs text-amber-600 font-medium mt-2">✓ Intégration CRM disponible</p>
         </div>
       </div>
+
+    </div>
+
+    <!-- Note transparence prix -->
+    <div class="mt-8 bg-slate-50 border border-slate-200 rounded-xl p-5 max-w-2xl mx-auto text-center">
+      <p class="text-sm text-slate-600">
+        💡 <strong>Pourquoi une installation + un abonnement ?</strong> L'installation couvre le travail de configuration et de mise en ligne (3-5h de travail). L'abonnement couvre l'hébergement et le coût de l'IA qui répond à vos clients chaque mois. Sans abonnement, l'agent ne peut pas fonctionner.
+      </p>
     </div>
   </div>
 </section>
@@ -235,40 +239,83 @@
 <!-- TÉMOIGNAGES -->
 <section id="temoignages" class="py-20 bg-white">
   <div class="max-w-6xl mx-auto px-6">
-    <div class="text-center mb-14">
+    <div class="text-center mb-10">
       <h2 class="text-3xl md:text-4xl font-bold mb-4">Ce qu'en disent les commerçants</h2>
-      <p class="text-lg text-slate-600">Vrais commerces, vrais retours. (Témoignages à venir.)</p>
+      <p class="text-lg text-slate-500" id="temoignages-subtitle">Les premiers témoignages arrivent bientôt — les pilotes sont en cours.</p>
     </div>
-    <div class="grid md:grid-cols-2 gap-6">
-      <div class="bg-slate-50 rounded-2xl p-8 border border-slate-200">
-        <div class="flex gap-1 text-amber-400 mb-4">★★★★★</div>
-        <p class="text-slate-700 italic mb-6">
-          "[Témoignage du premier client à venir — sera remplacé par une vraie citation après installation chez L&amp;A Coiffure]"
-        </p>
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-blue-200"></div>
-          <div>
-            <p class="font-bold text-sm">Nom prénom</p>
-            <p class="text-xs text-slate-500">Commerce — Fribourg</p>
-          </div>
-        </div>
-      </div>
-      <div class="bg-slate-50 rounded-2xl p-8 border border-slate-200">
-        <div class="flex gap-1 text-amber-400 mb-4">★★★★★</div>
-        <p class="text-slate-700 italic mb-6">
-          "[Deuxième témoignage à venir]"
-        </p>
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-blue-200"></div>
-          <div>
-            <p class="font-bold text-sm">Nom prénom</p>
-            <p class="text-xs text-slate-500">Commerce — Fribourg</p>
-          </div>
-        </div>
-      </div>
+
+    <!-- Grille témoignages -->
+    <div id="temoignages-grid" class="grid md:grid-cols-2 gap-6 mb-8">
+      <!-- Rempli dynamiquement par JS -->
+    </div>
+
+    <!-- Message vide -->
+    <div id="temoignages-empty" class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-12 text-center">
+      <p class="text-4xl mb-4">🌱</p>
+      <p class="text-xl font-bold text-slate-700 mb-2">Les premiers avis arrivent bientôt</p>
+      <p class="text-slate-500 max-w-md mx-auto">Cortex est en phase de lancement. Les premiers clients pilotes testent actuellement l'agent. Leurs retours seront publiés ici dès qu'ils seront disponibles.</p>
+      <p class="mt-4 text-sm text-blue-600 font-medium">Vous êtes commerçant ? Devenez l'un des premiers à tester gratuitement →</p>
+      <a href="#demo" class="inline-block mt-3 bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">Tester gratuitement</a>
+    </div>
+
+    <!-- Bouton admin (discret) -->
+    <div class="text-center mt-6">
+      <button onclick="toggleAdmin()" class="text-xs text-slate-300 hover:text-slate-500 transition">⚙ Admin</button>
     </div>
   </div>
 </section>
+
+<!-- PANNEAU ADMIN (caché par défaut) -->
+<div id="admin-panel" class="bg-slate-900 text-white py-12">
+  <div class="max-w-2xl mx-auto px-6">
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-xl font-bold font-display">Ajouter un témoignage</h3>
+      <button onclick="toggleAdmin()" class="text-slate-400 hover:text-white text-sm">✕ Fermer</button>
+    </div>
+
+    <!-- Mot de passe simple -->
+    <div id="admin-lock" class="mb-6">
+      <label class="block text-sm font-medium text-slate-400 mb-2">Mot de passe admin</label>
+      <div class="flex gap-3">
+        <input type="password" id="admin-pwd" placeholder="Entrez le mot de passe" class="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-blue-500" />
+        <button onclick="checkPwd()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-semibold transition">OK</button>
+      </div>
+      <p id="pwd-error" class="text-red-400 text-xs mt-2 hidden">Mot de passe incorrect.</p>
+    </div>
+
+    <div id="admin-form" class="hidden">
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-400 mb-1">Prénom Nom</label>
+          <input type="text" id="t-nom" placeholder="Ex: Sophie M." class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-400 mb-1">Commerce — Ville</label>
+          <input type="text" id="t-commerce" placeholder="Ex: L&A Coiffure — Fribourg" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500" />
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-slate-400 mb-1">Témoignage</label>
+        <textarea id="t-texte" rows="3" placeholder="Ce que le client a dit..." class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 resize-none"></textarea>
+      </div>
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-slate-400 mb-2">Note</label>
+        <div class="flex gap-1" id="star-selector">
+          <span class="star-btn text-2xl text-slate-600" data-val="1">★</span>
+          <span class="star-btn text-2xl text-slate-600" data-val="2">★</span>
+          <span class="star-btn text-2xl text-slate-600" data-val="3">★</span>
+          <span class="star-btn text-2xl text-slate-600" data-val="4">★</span>
+          <span class="star-btn text-2xl text-slate-600" data-val="5">★</span>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="ajouterTemoignage()" class="flex-1 bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-semibold transition">Publier le témoignage</button>
+        <button onclick="effacerTout()" class="bg-red-900 hover:bg-red-800 px-4 py-3 rounded-lg text-sm text-red-300 transition">Tout effacer</button>
+      </div>
+      <p class="text-xs text-slate-500 mt-3 text-center">Les témoignages sont sauvegardés localement dans le navigateur.</p>
+    </div>
+  </div>
+</div>
 
 <!-- DEMO CTA -->
 <section id="demo" class="gradient-bg py-20">
@@ -277,9 +324,8 @@
     <p class="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
       Démo gratuite de 15 minutes, en visio ou chez vous. Sans engagement.
     </p>
-
-    <!-- Formulaire -->
-    <form id="demo-form" onsubmit="envoyerViaMailto(event)" class="bg-white rounded-2xl p-6 md:p-8 text-left text-slate-900 max-w-2xl mx-auto">
+    <form id="demo-form" onsubmit="envoyerViaMailto(event)"
+          class="bg-white rounded-2xl p-6 md:p-8 text-left text-slate-900 max-w-2xl mx-auto">
       <div class="grid md:grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-semibold mb-1">Votre commerce</label>
@@ -305,14 +351,10 @@
       <button type="submit" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg transition">
         Envoyer la demande
       </button>
-      <p class="text-xs text-slate-500 text-center mt-3">
-        Réponse sous 24h. Vos données ne sont jamais partagées.
-      </p>
+      <p class="text-xs text-slate-500 text-center mt-3">Réponse sous 24h. Vos données ne sont jamais partagées.</p>
     </form>
-
     <p class="mt-8 text-blue-100">
       Ou contactez directement : <a href="mailto:trivex.ytb@gmail.com" class="underline font-semibold">trivex.ytb@gmail.com</a>
-      · <a href="tel:+41764065492" class="underline font-semibold">+41 76 406 54 92</a>
     </p>
   </div>
 </section>
@@ -324,36 +366,36 @@
     <div class="space-y-4">
       <details class="bg-slate-50 rounded-xl p-5 border border-slate-200 group">
         <summary class="font-semibold cursor-pointer list-none flex justify-between items-center">
+          Pourquoi y a-t-il une installation ET un abonnement ?
+          <span class="group-open:rotate-45 transition text-blue-600 font-bold text-xl">+</span>
+        </summary>
+        <p class="mt-3 text-slate-600">L'installation (travail unique de 3-5h) configure l'agent selon vos infos et le met en ligne. L'abonnement (mensuel, sans engagement) couvre l'hébergement Vercel et le coût de l'IA Claude qui répond à vos clients chaque mois. Sans abonnement, l'IA ne peut pas fonctionner. C'est transparent : 0 frais cachés.</p>
+      </details>
+      <details class="bg-slate-50 rounded-xl p-5 border border-slate-200 group">
+        <summary class="font-semibold cursor-pointer list-none flex justify-between items-center">
           Combien de temps pour installer l'agent ?
-          <span class="group-open:rotate-45 transition">+</span>
+          <span class="group-open:rotate-45 transition text-blue-600 font-bold text-xl">+</span>
         </summary>
         <p class="mt-3 text-slate-600">Entre 3 et 5 jours après validation de vos infos. Je vous envoie un formulaire simple à remplir, puis je configure et teste l'agent avant mise en ligne.</p>
       </details>
       <details class="bg-slate-50 rounded-xl p-5 border border-slate-200 group">
         <summary class="font-semibold cursor-pointer list-none flex justify-between items-center">
           Est-ce qu'il y a un engagement ?
-          <span class="group-open:rotate-45 transition">+</span>
+          <span class="group-open:rotate-45 transition text-blue-600 font-bold text-xl">+</span>
         </summary>
         <p class="mt-3 text-slate-600">Non. L'abonnement est sans engagement, vous pouvez résilier avec 1 mois de préavis. L'installation est facturée une seule fois.</p>
       </details>
       <details class="bg-slate-50 rounded-xl p-5 border border-slate-200 group">
         <summary class="font-semibold cursor-pointer list-none flex justify-between items-center">
           Et si l'agent répond mal à une question ?
-          <span class="group-open:rotate-45 transition">+</span>
+          <span class="group-open:rotate-45 transition text-blue-600 font-bold text-xl">+</span>
         </summary>
-        <p class="mt-3 text-slate-600">Vous pouvez me signaler toute réponse inappropriée, je corrige dans les 24h. L'agent apprend avec les corrections. Pour les sujets sensibles, il redirige automatiquement vers vous.</p>
-      </details>
-      <details class="bg-slate-50 rounded-xl p-5 border border-slate-200 group">
-        <summary class="font-semibold cursor-pointer list-none flex justify-between items-center">
-          Où sont hébergées les données ?
-          <span class="group-open:rotate-45 transition">+</span>
-        </summary>
-        <p class="mt-3 text-slate-600">L'agent tourne sur Vercel (hébergeur mondial) avec API Claude (Anthropic). Aucune donnée client n'est conservée au-delà de la conversation, sauf si vous demandez un historique.</p>
+        <p class="mt-3 text-slate-600">Vous pouvez me signaler toute réponse inappropriée, je corrige dans les 24h. Pour les sujets sensibles, il redirige automatiquement vers vous.</p>
       </details>
       <details class="bg-slate-50 rounded-xl p-5 border border-slate-200 group">
         <summary class="font-semibold cursor-pointer list-none flex justify-between items-center">
           Je n'ai pas de site web, est-ce que ça marche ?
-          <span class="group-open:rotate-45 transition">+</span>
+          <span class="group-open:rotate-45 transition text-blue-600 font-bold text-xl">+</span>
         </summary>
         <p class="mt-3 text-slate-600">Oui. L'agent peut être accessible via un lien partageable à mettre sur votre profil Google, Instagram, ou Facebook. Il peut aussi être branché directement sur WhatsApp Business.</p>
       </details>
@@ -365,51 +407,146 @@
 <footer class="bg-slate-900 text-slate-400 py-10">
   <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
     <div class="flex items-center gap-2">
-      <div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white font-bold text-sm">C</div>
-      <span class="font-bold text-white">TrivexIA</span>
+      <div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white font-bold text-sm font-display">C</div>
+      <span class="font-bold text-white font-display">Cortex</span>
       <span class="text-sm">· Fribourg, Suisse</span>
     </div>
     <div class="text-sm">
-      © 2026 · Fait à Fribourg avec ☕ · <a href="mailto:trivex.ytb@gmail.com" class="underline hover:text-white">Contact</a>
+      © 2026 · Fait à Fribourg avec ☕ · <a href="mailto:trivex.ytb@gmail.com" class="underline hover:text-white">trivex.ytb@gmail.com</a>
     </div>
   </div>
 </footer>
+
 <script>
-  function envoyerViaMailto(event) {
-    event.preventDefault();
-    const f = event.target;
-    const destinataire = "trivex.ytb@gmail.com";
-    const commerce = f.commerce.value.trim();
-    const prenom   = f.prenom.value.trim();
-    const email    = f.email.value.trim();
-    const tel      = f.tel.value.trim();
-    const message  = f.message.value.trim();
+// ─── MOT DE PASSE ADMIN ──────────────────────────────────────────
+const ADMIN_PASSWORD = "cortex2026"; // Change ça !
+let adminUnlocked = false;
+let noteSelectionnee = 5;
 
-    const sujet = `Demande de démo - ${commerce}`;
-    const corps =
-      `Bonjour Trivex,\n\n` +
-      `Je souhaite une démo de votre agent IA.\n\n` +
-      `Commerce : ${commerce}\n` +
-      `Prénom : ${prenom}\n` +
-      `Email : ${email}\n` +
-      `Téléphone / WhatsApp : ${tel}\n\n` +
-      `Message :\n${message || "(pas de message)"}\n\n` +
-      `Merci,\n${prenom}`;
-
-    const url = `mailto:${destinataire}`
-              + `?subject=${encodeURIComponent(sujet)}`
-              + `&body=${encodeURIComponent(corps)}`;
-    window.location.href = url;
-
-    setTimeout(() => {
-      const resume = `${corps}\n\nAdresse: ${destinataire}`;
-      if (navigator.clipboard) navigator.clipboard.writeText(resume).catch(() => {});
-      alert(
-        "Votre client email devrait s'ouvrir avec un message pré-rempli.\n\n" +
-        "Si rien ne se passe, écrivez-nous directement à " + destinataire
-      );
-    }, 800);
+function toggleAdmin() {
+  const panel = document.getElementById('admin-panel');
+  panel.classList.toggle('open');
+  if (!adminUnlocked) {
+    document.getElementById('admin-lock').style.display = 'block';
+    document.getElementById('admin-form').classList.add('hidden');
   }
+}
+
+function checkPwd() {
+  const pwd = document.getElementById('admin-pwd').value;
+  if (pwd === ADMIN_PASSWORD) {
+    adminUnlocked = true;
+    document.getElementById('admin-lock').style.display = 'none';
+    document.getElementById('admin-form').classList.remove('hidden');
+    document.getElementById('pwd-error').classList.add('hidden');
+  } else {
+    document.getElementById('pwd-error').classList.remove('hidden');
+  }
+}
+
+// ─── ETOILES ─────────────────────────────────────────────────────
+document.querySelectorAll('.star-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    noteSelectionnee = parseInt(btn.dataset.val);
+    document.querySelectorAll('.star-btn').forEach((s, i) => {
+      s.classList.toggle('active', i < noteSelectionnee);
+      s.style.color = i < noteSelectionnee ? '#f59e0b' : '#475569';
+    });
+  });
+});
+
+// ─── TÉMOIGNAGES ─────────────────────────────────────────────────
+function chargerTemoignages() {
+  return JSON.parse(localStorage.getItem('cortex_temoignages') || '[]');
+}
+
+function sauvegarderTemoignages(list) {
+  localStorage.setItem('cortex_temoignages', JSON.stringify(list));
+}
+
+function renderTemoignages() {
+  const list = chargerTemoignages();
+  const grid = document.getElementById('temoignages-grid');
+  const empty = document.getElementById('temoignages-empty');
+  const subtitle = document.getElementById('temoignages-subtitle');
+
+  grid.innerHTML = '';
+
+  if (list.length === 0) {
+    empty.style.display = 'block';
+    subtitle.textContent = 'Les premiers témoignages arrivent bientôt — les pilotes sont en cours.';
+    return;
+  }
+
+  empty.style.display = 'none';
+  subtitle.textContent = list.length + ' avis de commerçants fribourgeois';
+
+  list.forEach(t => {
+    const etoiles = '★'.repeat(t.note) + '☆'.repeat(5 - t.note);
+    const initiales = t.nom.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+    const card = document.createElement('div');
+    card.className = 'bg-slate-50 rounded-2xl p-8 border border-slate-200';
+    card.innerHTML = `
+      <div class="flex gap-1 text-amber-400 mb-4 text-lg">${etoiles}</div>
+      <p class="text-slate-700 italic mb-6">"${t.texte}"</p>
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center font-bold text-blue-700 text-sm">${initiales}</div>
+        <div>
+          <p class="font-bold text-sm">${t.nom}</p>
+          <p class="text-xs text-slate-500">${t.commerce}</p>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function ajouterTemoignage() {
+  const nom = document.getElementById('t-nom').value.trim();
+  const commerce = document.getElementById('t-commerce').value.trim();
+  const texte = document.getElementById('t-texte').value.trim();
+  if (!nom || !commerce || !texte) { alert('Remplis tous les champs !'); return; }
+  const list = chargerTemoignages();
+  list.push({ nom, commerce, texte, note: noteSelectionnee });
+  sauvegarderTemoignages(list);
+  renderTemoignages();
+  document.getElementById('t-nom').value = '';
+  document.getElementById('t-commerce').value = '';
+  document.getElementById('t-texte').value = '';
+  alert('Témoignage publié ! ✅');
+  toggleAdmin();
+}
+
+function effacerTout() {
+  if (confirm('Supprimer tous les témoignages ?')) {
+    localStorage.removeItem('cortex_temoignages');
+    renderTemoignages();
+  }
+}
+
+// Init
+renderTemoignages();
+
+// ─── FORMULAIRE DEMO ─────────────────────────────────────────────
+function envoyerViaMailto(event) {
+  event.preventDefault();
+  const f = event.target;
+  const destinataire = "trivex.ytb@gmail.com";
+  const commerce = f.commerce.value.trim();
+  const prenom   = f.prenom.value.trim();
+  const email    = f.email.value.trim();
+  const tel      = f.tel.value.trim();
+  const message  = f.message.value.trim();
+  const sujet = `Demande de démo - ${commerce}`;
+  const corps =
+    `Bonjour Trivex,\n\n` +
+    `Je souhaite une démo de votre agent IA.\n\n` +
+    `Commerce : ${commerce}\nPrénom : ${prenom}\nEmail : ${email}\nTél : ${tel}\n\nMessage :\n${message || "(aucun)"}\n\nMerci,\n${prenom}`;
+  window.location.href = `mailto:${destinataire}?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`;
+  setTimeout(() => {
+    if (navigator.clipboard) navigator.clipboard.writeText(corps).catch(()=>{});
+    alert("Votre client email devrait s'ouvrir.\n\nSi rien ne se passe, écrivez directement à " + destinataire);
+  }, 800);
+}
 </script>
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%233b82f6'/%3E%3Ctext x='50' y='68' font-family='Arial' font-size='60' font-weight='bold' text-anchor='middle' fill='white'%3EC%3C/text%3E%3C/svg%3E">
