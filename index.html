@@ -5,82 +5,126 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>TrivexIA SAV — Agent IA pour commerces suisses</title>
 <meta name="description" content="Installez un agent IA qui répond à vos clients 24/7. Pour coiffeurs, spas, restaurants et PME en Suisse romande." />
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
-<style>
-  html { scroll-behavior: smooth; }
-  body { font-family: 'DM Sans', sans-serif; }
-  h1,h2,h3,h4,.font-display { font-family: 'Syne', sans-serif; }
-  .gradient-bg { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
-  .card-hover { transition: transform .2s, box-shadow .2s; }
-  .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,.1); }
-  details summary::-webkit-details-marker { display: none; }
-  #payment-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 1rem; }
-  #payment-modal.open { display: flex; }
-  .modal-box { background: white; border-radius: 1.5rem; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; }
-  .step { display: none; }
-  .step.active { display: block; }
-  #admin-panel { display: none; }
-  #admin-panel.open { display: block; }
-</style>
+<link rel="stylesheet" href="style.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%233b82f6'/%3E%3Ctext x='50' y='68' font-family='Arial' font-size='60' font-weight='bold' text-anchor='middle' fill='white'%3ET%3C/text%3E%3C/svg%3E">
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body>
+
+<!-- ═══ MODALE AUTHENTIFICATION ═══ -->
+<div id="auth-modal" class="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">T</div>
+      <span class="auth-logo-text">TrivexIA<span style="color:#2563eb">.</span></span>
+    </div>
+    <h2 class="auth-title">Bienvenue 👋</h2>
+    <p class="auth-sub">Créez un compte gratuit pour accéder à toutes les fonctionnalités.</p>
+
+    <div class="auth-tab">
+      <button id="tab-login" class="active" onclick="switchAuthTab('login')">Connexion</button>
+      <button id="tab-register" onclick="switchAuthTab('register')">Créer un compte</button>
+    </div>
+
+    <!-- Formulaire connexion -->
+    <div id="auth-login-form">
+      <div id="login-error" class="auth-error"></div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" id="login-email" class="form-input" placeholder="vous@commerce.ch" autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <input type="password" id="login-password" class="form-input" placeholder="Votre mot de passe" autocomplete="current-password" />
+      </div>
+      <button onclick="handleLogin()" class="btn-primary">Se connecter</button>
+      <button onclick="switchAuthTab('register')" class="btn-secondary">Pas encore de compte → Créer</button>
+    </div>
+
+    <!-- Formulaire inscription -->
+    <div id="auth-register-form" style="display:none">
+      <div id="register-error" class="auth-error"></div>
+      <div id="register-success" class="auth-success"></div>
+      <div class="form-group">
+        <label class="form-label">Prénom</label>
+        <input type="text" id="reg-prenom" class="form-input" placeholder="Jean" autocomplete="given-name" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" id="reg-email" class="form-input" placeholder="vous@commerce.ch" autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe <span style="color:#94a3b8;font-weight:400">(min. 6 caractères)</span></label>
+        <input type="password" id="reg-password" class="form-input" placeholder="Choisissez un mot de passe" autocomplete="new-password" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirmer le mot de passe</label>
+        <input type="password" id="reg-confirm" class="form-input" placeholder="Répétez votre mot de passe" autocomplete="new-password" />
+      </div>
+      <div class="form-group" style="display:flex;align-items:flex-start;gap:.6rem;margin-top:.25rem">
+        <input type="checkbox" id="reg-cgu" style="margin-top:.2rem;flex-shrink:0;accent-color:#2563eb" />
+        <label for="reg-cgu" style="font-size:.8rem;color:#64748b;cursor:pointer">
+          J'accepte les <a href="#legal" onclick="switchLegalTab('cgu');closeAuthModal()" style="color:#2563eb;text-decoration:underline">conditions d'utilisation</a> et la <a href="#legal" onclick="switchLegalTab('confidentialite');closeAuthModal()" style="color:#2563eb;text-decoration:underline">politique de confidentialité</a> de TrivexIA.
+        </label>
+      </div>
+      <button onclick="handleRegister()" class="btn-primary" style="margin-top:1rem">Créer mon compte gratuit</button>
+      <button onclick="switchAuthTab('login')" class="btn-secondary">Déjà un compte → Se connecter</button>
+    </div>
+
+    <p class="auth-gdpr">🔒 Vos données sont stockées uniquement sur votre appareil (localStorage). Aucune donnée n'est transmise à des tiers. Conforme nLPD & RGPD.</p>
+  </div>
+</div>
 
 <!-- ═══ MODAL PAIEMENT ═══ -->
 <div id="payment-modal" onclick="closeModalOutside(event)">
   <div class="modal-box">
-    <div class="gradient-bg text-white p-6 rounded-t-2xl">
-      <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center font-bold font-display text-sm">T</div>
-          <span class="font-bold font-display">TrivexIA</span>
+    <div class="modal-header">
+      <div class="modal-header-top">
+        <div class="modal-logo">
+          <div class="modal-logo-icon">T</div>
+          <span>TrivexIA</span>
         </div>
-        <button onclick="closeModal()" class="text-white/70 hover:text-white text-2xl leading-none">×</button>
+        <button onclick="closeModal()" class="modal-close">×</button>
       </div>
-      <h3 class="text-xl font-bold font-display" id="modal-title">Commander</h3>
-      <p class="text-blue-200 text-sm mt-1" id="modal-subtitle"></p>
+      <h3 id="modal-title">Commander</h3>
+      <p id="modal-subtitle"></p>
     </div>
-    <div class="p-6 border-b border-slate-100">
-      <div class="bg-slate-50 rounded-xl p-4">
-        <div class="flex justify-between items-start mb-3">
+    <div class="modal-recap">
+      <div class="recap-box">
+        <div class="recap-top">
           <div>
-            <p class="font-semibold" id="recap-nom"></p>
-            <p class="text-sm text-slate-500" id="recap-desc"></p>
+            <div class="recap-name" id="recap-nom"></div>
+            <div class="recap-desc" id="recap-desc"></div>
           </div>
-          <div class="text-right">
-            <p class="font-bold text-lg" id="recap-install"></p>
-            <p class="text-xs text-slate-500">installation unique</p>
+          <div>
+            <div class="recap-price" id="recap-install"></div>
+            <div class="recap-price-label">installation unique</div>
           </div>
         </div>
-        <div class="flex justify-between items-center pt-3 border-t border-slate-200">
-          <p class="text-sm text-slate-600">Puis abonnement mensuel</p>
-          <p class="font-semibold text-blue-600" id="recap-abo"></p>
+        <div class="recap-abo">
+          <span class="recap-abo-label">Puis abonnement mensuel</span>
+          <span class="recap-abo-val" id="recap-abo"></span>
         </div>
-        <p class="text-xs text-green-600 mt-2 font-medium" id="recap-note"></p>
+        <div class="recap-note" id="recap-note"></div>
       </div>
     </div>
-    <div class="p-6">
+    <div class="modal-body">
 
       <!-- Étape 1 : Choix -->
       <div class="step active" id="step-1">
-        <h4 class="font-bold mb-4 font-display">Comment voulez-vous commencer ?</h4>
-        <div class="space-y-3">
-          <button onclick="choisirMode('pilote')" class="w-full text-left border-2 border-green-500 bg-green-50 rounded-xl p-4 hover:bg-green-100 transition">
-            <div class="flex items-start gap-3">
-              <span class="text-2xl">🌱</span>
-              <div>
-                <p class="font-bold text-green-800">Commencer gratuitement (recommandé)</p>
-                <p class="text-sm text-green-700 mt-1">2 semaines d'essai gratuit. Je configure tout sans frais. Vous payez seulement si vous êtes satisfait.</p>
-              </div>
+        <h4>Comment voulez-vous commencer ?</h4>
+        <div style="margin-top:1rem">
+          <button onclick="choisirMode('pilote')" class="mode-btn green">
+            <span class="mode-btn-emoji">🌱</span>
+            <div>
+              <div class="mode-btn-title">Commencer gratuitement (recommandé)</div>
+              <div class="mode-btn-desc">2 semaines d'essai gratuit. Je configure tout sans frais. Vous payez seulement si vous êtes satisfait.</div>
             </div>
           </button>
-          <button onclick="choisirMode('payer')" class="w-full text-left border-2 border-slate-200 rounded-xl p-4 hover:border-blue-400 hover:bg-blue-50 transition">
-            <div class="flex items-start gap-3">
-              <span class="text-2xl">💳</span>
-              <div>
-                <p class="font-bold">Commander directement</p>
-                <p class="text-sm text-slate-500 mt-1">Payer l'installation maintenant et démarrer immédiatement.</p>
-              </div>
+          <button onclick="choisirMode('payer')" class="mode-btn">
+            <span class="mode-btn-emoji">💳</span>
+            <div>
+              <div class="mode-btn-title">Commander directement</div>
+              <div class="mode-btn-desc">Payer l'installation maintenant et démarrer immédiatement.</div>
             </div>
           </button>
         </div>
@@ -88,446 +132,509 @@
 
       <!-- Étape 2A : Pilote gratuit -->
       <div class="step" id="step-pilote">
-        <button onclick="retour('step-1')" class="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 mb-4">← Retour</button>
-        <h4 class="font-bold mb-1 font-display">Demande d'essai gratuit</h4>
-        <p class="text-sm text-slate-500 mb-5">Je vous contacte sous 24h pour fixer un RDV de 15 min.</p>
-        <div class="space-y-3">
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Prénom</label>
-              <input type="text" id="p-prenom" placeholder="Jean" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Nom du commerce</label>
-              <input type="text" id="p-commerce" placeholder="Salon XYZ" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500" />
-            </div>
+        <button onclick="retour('step-1')" class="back-btn">← Retour</button>
+        <h4>Demande d'essai gratuit</h4>
+        <p class="step-sub">Je vous contacte sous 24h pour fixer un RDV de 15 min.</p>
+        <div class="modal-form-grid">
+          <div>
+            <label class="form-label">Prénom</label>
+            <input type="text" id="p-prenom" class="form-input" placeholder="Jean" />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Email</label>
-            <input type="email" id="p-email" placeholder="vous@commerce.ch" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500" />
+            <label class="form-label">Nom du commerce</label>
+            <input type="text" id="p-commerce" class="form-input" placeholder="Salon XYZ" />
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Téléphone / WhatsApp</label>
-            <input type="tel" id="p-tel" placeholder="+41 76 406 54 92" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500" />
+          <div class="full">
+            <label class="form-label">Email</label>
+            <input type="email" id="p-email" class="form-input" placeholder="vous@commerce.ch" />
+          </div>
+          <div class="full">
+            <label class="form-label">Téléphone / WhatsApp</label>
+            <input type="tel" id="p-tel" class="form-input" placeholder="+41 76 406 54 92" />
           </div>
         </div>
-        <button onclick="envoyerPilote()" class="w-full mt-5 bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-xl transition">Demander mon essai gratuit →</button>
-        <p class="text-xs text-slate-400 text-center mt-3">Aucune carte bancaire requise. Zéro engagement.</p>
+        <button onclick="envoyerPilote()" class="btn-modal-submit green">Demander mon essai gratuit →</button>
+        <p class="modal-disclaimer">Aucune carte bancaire requise. Zéro engagement.</p>
       </div>
 
       <!-- Étape 2B : Commande payante -->
       <div class="step" id="step-payer">
-        <button onclick="retour('step-1')" class="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 mb-4">← Retour</button>
-        <h4 class="font-bold mb-1 font-display">Vos coordonnées</h4>
-        <p class="text-sm text-slate-500 mb-5">Je vous envoie une facture par email sous 24h, payable par virement bancaire.</p>
-        <div class="space-y-3">
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Prénom</label>
-              <input type="text" id="f-prenom" placeholder="Jean" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Nom du commerce</label>
-              <input type="text" id="f-commerce" placeholder="Salon XYZ" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500" />
-            </div>
+        <button onclick="retour('step-1')" class="back-btn">← Retour</button>
+        <h4>Vos coordonnées</h4>
+        <p class="step-sub">Je vous envoie une facture par email sous 24h, payable par virement bancaire.</p>
+        <div class="modal-form-grid">
+          <div>
+            <label class="form-label">Prénom</label>
+            <input type="text" id="f-prenom" class="form-input" placeholder="Jean" />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Email</label>
-            <input type="email" id="f-email" placeholder="vous@commerce.ch" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500" />
+            <label class="form-label">Nom du commerce</label>
+            <input type="text" id="f-commerce" class="form-input" placeholder="Salon XYZ" />
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Téléphone / WhatsApp</label>
-            <input type="tel" id="f-tel" placeholder="+41 76 406 54 92" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500" />
+          <div class="full">
+            <label class="form-label">Email</label>
+            <input type="email" id="f-email" class="form-input" placeholder="vous@commerce.ch" />
+          </div>
+          <div class="full">
+            <label class="form-label">Téléphone / WhatsApp</label>
+            <input type="tel" id="f-tel" class="form-input" placeholder="+41 76 406 54 92" />
           </div>
         </div>
-        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 mt-4">
-          <p class="text-xs text-blue-700">💡 Après votre commande, je vous contacte sous 24h et vous envoie la facture. L'installation démarre après réception du paiement.</p>
-        </div>
-        <button onclick="envoyerCommande()" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition">Confirmer ma commande →</button>
-        <p class="text-xs text-slate-400 text-center mt-3">Paiement par virement bancaire. Sans engagement pour l'abonnement.</p>
+        <div class="modal-note">💡 Après votre commande, je vous contacte sous 24h et vous envoie la facture. L'installation démarre après réception du paiement.</div>
+        <button onclick="envoyerCommande()" class="btn-modal-submit">Confirmer ma commande →</button>
+        <p class="modal-disclaimer">Paiement par virement bancaire. Sans engagement pour l'abonnement.</p>
       </div>
 
       <!-- Étape 3 : Confirmation -->
       <div class="step" id="step-confirm">
-        <div class="text-center py-6">
-          <div class="text-5xl mb-4">🎉</div>
-          <h4 class="text-xl font-bold font-display mb-2" id="confirm-titre">Demande envoyée !</h4>
-          <p class="text-slate-600 mb-6" id="confirm-texte"></p>
-          <div class="bg-slate-50 rounded-xl p-4 text-left mb-6">
-            <p class="text-sm font-semibold text-slate-700 mb-2">Vos prochaines étapes :</p>
-            <ol class="text-sm text-slate-600 space-y-1 list-decimal list-inside" id="confirm-etapes"></ol>
+        <div class="step-confirm">
+          <div class="confirm-emoji">🎉</div>
+          <div class="confirm-title" id="confirm-titre">Demande envoyée !</div>
+          <div class="confirm-text" id="confirm-texte"></div>
+          <div class="confirm-steps">
+            <p>Vos prochaines étapes :</p>
+            <ol id="confirm-etapes"></ol>
           </div>
-          <div class="text-sm text-slate-500">
-            Questions ? <a href="mailto:trivex.ytb@gmail.com" class="text-blue-600 underline">trivex.ytb@gmail.com</a> · <a href="tel:+41764065492" class="text-blue-600 underline">+41 76 406 54 92</a>
+          <div class="confirm-contact">
+            Questions ? <a href="mailto:trivex.ytb@gmail.com">trivex.ytb@gmail.com</a> · <a href="tel:+41764065492">+41 76 406 54 92</a>
           </div>
-          <button onclick="closeModal()" class="mt-5 w-full bg-slate-900 text-white py-3 rounded-xl font-semibold hover:bg-slate-700 transition">Fermer</button>
+          <button onclick="closeModal()" class="btn-modal-close">Fermer</button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- NAV -->
-<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200">
-  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="#" class="flex items-center gap-2">
-      <div class="w-9 h-9 rounded-lg gradient-bg flex items-center justify-center text-white font-bold font-display">T</div>
-      <span class="font-bold text-xl font-display">TrivexIA<span class="text-blue-600">.</span></span>
+<!-- ═══ NAVIGATION ═══ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-icon">T</div>
+      <span class="nav-logo-text">TrivexIA<span>.</span></span>
     </a>
-    <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-      <a href="#produits" class="hover:text-blue-600 transition">Produits</a>
-      <a href="#comment" class="hover:text-blue-600 transition">Comment ça marche</a>
-      <a href="#temoignages" class="hover:text-blue-600 transition">Témoignages</a>
-      <a href="#tarifs" class="hover:text-blue-600 transition">Tarifs</a>
+    <div class="nav-links">
+      <a href="#produits">Produits</a>
+      <a href="#comment">Comment ça marche</a>
+      <a href="#temoignages">Témoignages</a>
+      <a href="#tarifs">Tarifs</a>
     </div>
-    <a href="#demo" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-semibold transition">Demander une démo</a>
+    <div id="nav-auth-zone">
+      <button onclick="openAuthModal('login')" class="btn-nav">Se connecter</button>
+    </div>
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="gradient-bg text-white">
-  <div class="max-w-6xl mx-auto px-6 py-20 md:py-28">
-    <div class="max-w-3xl">
-      <span class="inline-block bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full mb-6">🇨🇭 Fait à Fribourg — pour les commerces suisses</span>
-      <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-6 font-display">
-        Un agent IA qui répond à vos clients,<br/><span class="text-blue-200">24 heures sur 24.</span>
-      </h1>
-      <p class="text-xl text-blue-100 mb-8 leading-relaxed">Horaires, services, tarifs, réservations : votre agent TrivexIA répond instantanément sur votre site ou WhatsApp. Vos clients ne partent plus parce qu'ils n'ont pas eu de réponse le soir.</p>
-      <div class="flex flex-col sm:flex-row gap-4">
-        <a href="#demo" class="bg-white text-blue-700 hover:bg-blue-50 px-8 py-4 rounded-lg font-bold transition text-center">Voir une démo gratuite</a>
-        <a href="#produits" class="border-2 border-white/40 hover:bg-white/10 px-8 py-4 rounded-lg font-semibold transition text-center">Découvrir les offres</a>
-      </div>
-      <p class="mt-6 text-sm text-blue-200">✓ Installation en 3-5 jours &nbsp;&nbsp; ✓ Sans engagement &nbsp;&nbsp; ✓ Support en français</p>
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-inner">
+    <span class="hero-badge">🇨🇭 Fait à Fribourg — pour les commerces suisses</span>
+    <h1>Un agent IA qui répond à vos clients,<br/><span>24 heures sur 24.</span></h1>
+    <p class="hero-sub">Horaires, services, tarifs, réservations : votre agent TrivexIA répond instantanément sur votre site ou WhatsApp. Vos clients ne partent plus parce qu'ils n'ont pas eu de réponse le soir.</p>
+    <div class="hero-btns">
+      <a href="#demo" class="btn-hero-primary">Voir une démo gratuite</a>
+      <a href="#produits" class="btn-hero-secondary">Découvrir les offres</a>
     </div>
+    <p class="hero-meta">
+      <span>✓ Installation en 3-5 jours</span>
+      <span>✓ Sans engagement</span>
+      <span>✓ Support en français</span>
+    </p>
   </div>
 </section>
 
-<!-- BANDEAU -->
-<section class="bg-white border-b border-slate-200">
-  <div class="max-w-6xl mx-auto px-6 py-8">
-    <p class="text-center text-sm text-slate-500 uppercase tracking-wider mb-4 font-semibold">Déjà utilisé par des commerces à Fribourg</p>
-    <div class="flex flex-wrap justify-center gap-8 text-slate-400 text-sm md:text-base font-medium">
-      <span class="opacity-70">[Logo client 1]</span><span class="opacity-70">[Logo client 2]</span>
-      <span class="opacity-70">[Logo client 3]</span><span class="opacity-70">[Logo client 4]</span>
-    </div>
-  </div>
-</section>
-
-<!-- PROBLEM / SOLUTION -->
-<section class="py-20 bg-slate-50">
-  <div class="max-w-6xl mx-auto px-6">
-    <div class="grid md:grid-cols-2 gap-12 items-center">
-      <div>
-        <h2 class="text-3xl md:text-4xl font-bold mb-6 font-display">Chaque soir, vous perdez des clients<br/><span class="text-red-500">sans le savoir.</span></h2>
-        <p class="text-lg text-slate-600 mb-4">À 21h, un client cherche vos horaires du samedi. À 22h30, il veut savoir si vous avez un créneau dispo demain. À minuit, il hésite entre vous et votre concurrent.</p>
-        <p class="text-lg text-slate-600 mb-6">Quand personne ne répond, <strong>il va voir ailleurs</strong>.</p>
-        <ul class="space-y-3 text-slate-700">
-          <li class="flex items-start gap-3"><span class="text-green-500 font-bold text-lg">✓</span><span>L'agent répond dans la seconde, en français, 24/7</span></li>
-          <li class="flex items-start gap-3"><span class="text-green-500 font-bold text-lg">✓</span><span>Il connaît VOS horaires, VOS prestations, VOS tarifs</span></li>
-          <li class="flex items-start gap-3"><span class="text-green-500 font-bold text-lg">✓</span><span>Il transmet les demandes importantes à votre équipe</span></li>
-          <li class="flex items-start gap-3"><span class="text-green-500 font-bold text-lg">✓</span><span>Vous gardez le contrôle : vous l'entraînez, vous le modifiez</span></li>
-        </ul>
-      </div>
-      <div class="bg-white rounded-2xl shadow-xl p-6 border border-slate-200">
-        <div class="space-y-4">
-          <div class="bg-slate-100 rounded-xl p-4 max-w-[85%]"><p class="text-sm text-slate-700">Salut, vous êtes ouverts demain ? J'aimerais une coupe + barbe</p><p class="text-xs text-slate-400 mt-1">Client · 22:47</p></div>
-          <div class="bg-blue-600 text-white rounded-xl p-4 max-w-[85%] ml-auto"><p class="text-sm">Bonjour 👋 Oui, nous sommes ouverts demain de 9h à 19h. Pour une coupe + barbe (1h), il me reste un créneau à 10h15 ou 15h30. Je peux vous réserver lequel ?</p><p class="text-xs text-blue-200 mt-1">Agent TrivexIA · 22:47 · réponse en 2s</p></div>
-          <div class="bg-slate-100 rounded-xl p-4 max-w-[85%]"><p class="text-sm text-slate-700">Parfait, 15h30 svp</p></div>
-          <div class="bg-blue-600 text-white rounded-xl p-4 max-w-[85%] ml-auto"><p class="text-sm">Noté ! Je vous confirme votre RDV demain à 15h30. À demain 🙂</p></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- PRODUITS -->
-<section id="produits" class="py-20 bg-white">
-  <div class="max-w-6xl mx-auto px-6">
-    <div class="text-center mb-14">
-      <h2 class="text-3xl md:text-4xl font-bold mb-4 font-display">Trois agents, un seul objectif</h2>
-      <p class="text-lg text-slate-600 max-w-2xl mx-auto">Commencez avec l'essentiel. Ajoutez les autres quand vous êtes prêt.</p>
-    </div>
-    <div class="grid md:grid-cols-3 gap-6" id="tarifs">
-
-      <!-- Produit 1 -->
-      <div class="bg-white rounded-2xl p-8 border-2 border-slate-200 card-hover flex flex-col">
-        <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center mb-4"><span class="text-2xl">💬</span></div>
-        <h3 class="text-xl font-bold mb-1 font-display">Agent SAV</h3>
-        <p class="text-sm text-slate-500 mb-4">Répond aux questions 24/7</p>
-        <p class="text-slate-700 mb-6 flex-1">Horaires, prestations, tarifs, adresse. L'agent répond instantanément sur votre site ou via un lien partageable.</p>
-        <div class="border-t border-slate-200 pt-4 space-y-1 mb-5">
-          <p class="text-3xl font-bold">150 CHF <span class="text-sm font-normal text-slate-500">installation</span></p>
-          <p class="text-sm text-slate-500">puis <span class="font-semibold text-slate-700">19 CHF/mois</span> — résiliable à tout moment</p>
-          <p class="text-xs text-green-600 font-medium mt-2">✓ Essai gratuit 2 semaines disponible</p>
-        </div>
-        <button onclick="ouvrirModal('sav')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition">Commander →</button>
-      </div>
-
-      <!-- Produit 2 -->
-      <div class="bg-white rounded-2xl p-8 border-2 border-blue-500 card-hover relative shadow-lg flex flex-col">
-        <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-bold px-4 py-1 rounded-full">POPULAIRE</span>
-        <div class="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center mb-4"><span class="text-2xl">📅</span></div>
-        <h3 class="text-xl font-bold mb-1 font-display">Agent Prise de RDV</h3>
-        <p class="text-sm text-slate-500 mb-4">Réservations automatiques</p>
-        <p class="text-slate-700 mb-6 flex-1">L'agent prend les RDV en direct, synchronise avec votre Google Calendar, envoie les confirmations. Vous ne passez plus 1h/jour au téléphone.</p>
-        <div class="border-t border-slate-200 pt-4 space-y-1 mb-5">
-          <p class="text-3xl font-bold">290 CHF <span class="text-sm font-normal text-slate-500">installation</span></p>
-          <p class="text-sm text-slate-500">puis <span class="font-semibold text-slate-700">39 CHF/mois</span> — résiliable à tout moment</p>
-          <p class="text-xs text-blue-600 font-medium mt-2">✓ Inclus : Agent SAV + Booking</p>
-        </div>
-        <button onclick="ouvrirModal('rdv')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition">Commander →</button>
-      </div>
-
-      <!-- Produit 3 -->
-      <div class="bg-white rounded-2xl p-8 border-2 border-slate-200 card-hover flex flex-col">
-        <div class="w-12 h-12 rounded-lg bg-amber-100 flex items-center justify-center mb-4"><span class="text-2xl">🎯</span></div>
-        <h3 class="text-xl font-bold mb-1 font-display">Agent Lead Qualif.</h3>
-        <p class="text-sm text-slate-500 mb-4">Pour agences &amp; PME</p>
-        <p class="text-slate-700 mb-6 flex-1">L'agent qualifie vos leads entrants, filtre les prospects froids, transmet uniquement les demandes chaudes avec résumé à votre équipe.</p>
-        <div class="border-t border-slate-200 pt-4 space-y-1 mb-5">
-          <p class="text-3xl font-bold">490 CHF <span class="text-sm font-normal text-slate-500">installation</span></p>
-          <p class="text-sm text-slate-500">puis <span class="font-semibold text-slate-700">79 CHF/mois</span> — résiliable à tout moment</p>
-          <p class="text-xs text-amber-600 font-medium mt-2">✓ Intégration CRM disponible</p>
-        </div>
-        <button onclick="ouvrirModal('lead')" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl transition">Commander →</button>
-      </div>
-    </div>
-    <div class="mt-8 bg-slate-50 border border-slate-200 rounded-xl p-5 max-w-2xl mx-auto text-center">
-      <p class="text-sm text-slate-600">💡 <strong>Pourquoi une installation + un abonnement ?</strong> L'installation couvre le travail de configuration (3-5h). L'abonnement couvre l'hébergement et le coût de l'IA qui répond à vos clients chaque mois. Zéro frais cachés.</p>
-    </div>
-  </div>
-</section>
-
-<!-- COMMENT ÇA MARCHE -->
-<section id="comment" class="py-20 bg-slate-50">
-  <div class="max-w-6xl mx-auto px-6">
-    <div class="text-center mb-14">
-      <h2 class="text-3xl md:text-4xl font-bold mb-4 font-display">En 3 étapes, votre agent est en ligne</h2>
-      <p class="text-lg text-slate-600">De la démo à la mise en ligne : 3 à 5 jours.</p>
-    </div>
-    <div class="grid md:grid-cols-3 gap-8">
-      <div class="text-center"><div class="w-16 h-16 rounded-full gradient-bg text-white text-2xl font-bold flex items-center justify-center mx-auto mb-4 font-display">1</div><h3 class="text-xl font-bold mb-2 font-display">Démo en 15 min</h3><p class="text-slate-600">On se parle en visio ou sur place. Je vous montre un exemple live adapté à votre commerce.</p></div>
-      <div class="text-center"><div class="w-16 h-16 rounded-full gradient-bg text-white text-2xl font-bold flex items-center justify-center mx-auto mb-4 font-display">2</div><h3 class="text-xl font-bold mb-2 font-display">Configuration</h3><p class="text-slate-600">Vous m'envoyez vos infos (horaires, prestations, tarifs). Je configure l'agent pour vous.</p></div>
-      <div class="text-center"><div class="w-16 h-16 rounded-full gradient-bg text-white text-2xl font-bold flex items-center justify-center mx-auto mb-4 font-display">3</div><h3 class="text-xl font-bold mb-2 font-display">Mise en ligne</h3><p class="text-slate-600">L'agent est actif sur votre site ou WhatsApp. Vous pouvez le modifier à tout moment.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- TÉMOIGNAGES -->
-<section id="temoignages" class="py-20 bg-white">
-  <div class="max-w-6xl mx-auto px-6">
-    <div class="text-center mb-10">
-      <h2 class="text-3xl md:text-4xl font-bold mb-4 font-display">Ce qu'en disent les commerçants</h2>
-      <p class="text-lg text-slate-500" id="temoignages-subtitle">Les premiers témoignages arrivent bientôt — les pilotes sont en cours.</p>
-    </div>
-    <div id="temoignages-grid" class="grid md:grid-cols-2 gap-6 mb-8"></div>
-    <div id="temoignages-empty" class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-12 text-center">
-      <p class="text-4xl mb-4">🌱</p>
-      <p class="text-xl font-bold text-slate-700 mb-2 font-display">Les premiers avis arrivent bientôt</p>
-      <p class="text-slate-500 max-w-md mx-auto">TrivexIA est en phase de lancement. Les premiers clients pilotes testent actuellement l'agent. Leurs retours seront publiés ici dès qu'ils seront disponibles.</p>
-      <p class="mt-4 text-sm text-blue-600 font-medium">Vous êtes commerçant ? Devenez l'un des premiers à tester gratuitement →</p>
-      <button onclick="ouvrirModal('sav')" class="inline-block mt-3 bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">Tester gratuitement</button>
-    </div>
-    <div class="text-center mt-6"><button onclick="toggleAdmin()" class="text-xs text-slate-300 hover:text-slate-500 transition">⚙ Admin</button></div>
-  </div>
-</section>
-
-<!-- ADMIN -->
-<div id="admin-panel" class="bg-slate-900 text-white py-12">
-  <div class="max-w-2xl mx-auto px-6">
-    <div class="flex items-center justify-between mb-6">
-      <h3 class="text-xl font-bold font-display">Ajouter un témoignage</h3>
-      <button onclick="toggleAdmin()" class="text-slate-400 hover:text-white text-sm">✕ Fermer</button>
-    </div>
-    <div id="admin-lock" class="mb-6">
-      <label class="block text-sm font-medium text-slate-400 mb-2">Mot de passe admin</label>
-      <div class="flex gap-3">
-        <input type="password" id="admin-pwd" placeholder="Mot de passe" class="flex-1 bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-blue-500" />
-        <button onclick="checkPwd()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-semibold transition">OK</button>
-      </div>
-      <p id="pwd-error" class="text-red-400 text-xs mt-2 hidden">Mot de passe incorrect.</p>
-    </div>
-    <div id="admin-form" class="hidden">
-      <div class="grid grid-cols-2 gap-4 mb-4">
-        <div><label class="block text-sm font-medium text-slate-400 mb-1">Prénom Nom</label><input type="text" id="t-nom" placeholder="Sophie M." class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500" /></div>
-        <div><label class="block text-sm font-medium text-slate-400 mb-1">Commerce — Ville</label><input type="text" id="t-commerce" placeholder="L&A Coiffure — Fribourg" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500" /></div>
-      </div>
-      <div class="mb-4"><label class="block text-sm font-medium text-slate-400 mb-1">Témoignage</label><textarea id="t-texte" rows="3" placeholder="Ce que le client a dit..." class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 resize-none"></textarea></div>
-      <div class="mb-6">
-        <label class="block text-sm font-medium text-slate-400 mb-2">Note</label>
-        <div class="flex gap-1" id="star-selector">
-          <span class="cursor-pointer text-2xl text-slate-600" data-val="1">★</span><span class="cursor-pointer text-2xl text-slate-600" data-val="2">★</span><span class="cursor-pointer text-2xl text-slate-600" data-val="3">★</span><span class="cursor-pointer text-2xl text-slate-600" data-val="4">★</span><span class="cursor-pointer text-2xl text-slate-600" data-val="5">★</span>
-        </div>
-      </div>
-      <div class="flex gap-3">
-        <button onclick="ajouterTemoignage()" class="flex-1 bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-semibold transition">Publier</button>
-        <button onclick="effacerTout()" class="bg-red-900 hover:bg-red-800 px-4 py-3 rounded-lg text-sm text-red-300 transition">Tout effacer</button>
-      </div>
+<!-- ═══ BANDEAU ═══ -->
+<div class="bandeau">
+  <div class="bandeau-inner">
+    <p class="bandeau-label">Déjà utilisé par des commerces à Fribourg</p>
+    <div class="bandeau-logos">
+      <span>[Logo client 1]</span>
+      <span>[Logo client 2]</span>
+      <span>[Logo client 3]</span>
+      <span>[Logo client 4]</span>
     </div>
   </div>
 </div>
 
-<!-- DEMO CTA -->
-<section id="demo" class="gradient-bg py-20">
-  <div class="max-w-4xl mx-auto px-6 text-center text-white">
-    <h2 class="text-3xl md:text-5xl font-bold mb-6 font-display">Prêt à voir l'agent en action ?</h2>
-    <p class="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">Démo gratuite de 15 minutes, en visio ou chez vous. Sans engagement.</p>
-    <form id="demo-form" onsubmit="envoyerViaMailto(event)" class="bg-white rounded-2xl p-6 md:p-8 text-left text-slate-900 max-w-2xl mx-auto">
-      <div class="grid md:grid-cols-2 gap-4">
-        <div><label class="block text-sm font-semibold mb-1">Votre commerce</label><input name="commerce" required type="text" placeholder="Ex: Salon XYZ" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500" /></div>
-        <div><label class="block text-sm font-semibold mb-1">Votre prénom</label><input name="prenom" required type="text" placeholder="Ex: Jean" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500" /></div>
-        <div><label class="block text-sm font-semibold mb-1">Email</label><input name="email" required type="email" placeholder="vous@commerce.ch" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500" /></div>
-        <div><label class="block text-sm font-semibold mb-1">Téléphone / WhatsApp</label><input name="tel" required type="tel" placeholder="+41 76 406 54 92" class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500" /></div>
+<!-- ═══ PROBLÈME / SOLUTION ═══ -->
+<section class="problem">
+  <div class="problem-inner">
+    <div>
+      <h2>Chaque soir, vous perdez des clients<br/><span>sans le savoir.</span></h2>
+      <p>À 21h, un client cherche vos horaires du samedi. À 22h30, il veut savoir si vous avez un créneau dispo demain. À minuit, il hésite entre vous et votre concurrent.</p>
+      <p>Quand personne ne répond, <strong>il va voir ailleurs</strong>.</p>
+      <ul class="check-list">
+        <li><span>✓</span><span>L'agent répond dans la seconde, en français, 24/7</span></li>
+        <li><span>✓</span><span>Il connaît VOS horaires, VOS prestations, VOS tarifs</span></li>
+        <li><span>✓</span><span>Il transmet les demandes importantes à votre équipe</span></li>
+        <li><span>✓</span><span>Vous gardez le contrôle : vous l'entraînez, vous le modifiez</span></li>
+      </ul>
+    </div>
+    <div class="chat-demo">
+      <div class="chat-messages">
+        <div><div class="chat-bubble user">Salut, vous êtes ouverts demain ? J'aimerais une coupe + barbe</div><div class="chat-meta" style="color:#94a3b8;font-size:.7rem;margin-top:.25rem">Client · 22:47</div></div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end"><div class="chat-bubble bot">Bonjour 👋 Oui, nous sommes ouverts demain de 9h à 19h. Pour une coupe + barbe (1h), il me reste un créneau à 10h15 ou 15h30. Je peux vous réserver lequel ?</div><div class="chat-meta" style="color:#94a3b8;font-size:.7rem;margin-top:.25rem">Agent TrivexIA · 22:47 · réponse en 2s</div></div>
+        <div><div class="chat-bubble user">Parfait, 15h30 svp</div></div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end"><div class="chat-bubble bot">Noté ! Je vous confirme votre RDV demain à 15h30. À demain 🙂</div></div>
       </div>
-      <div class="mt-4"><label class="block text-sm font-semibold mb-1">Que voulez-vous savoir ? (optionnel)</label><textarea name="message" rows="3" placeholder="Ex: je me demande si ça marche pour un salon de coiffure..." class="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500"></textarea></div>
-      <button type="submit" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg transition">Envoyer la demande</button>
-      <p class="text-xs text-slate-500 text-center mt-3">Réponse sous 24h. Vos données ne sont jamais partagées.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PRODUITS ═══ -->
+<section id="produits" class="produits">
+  <div class="produits-inner">
+    <div class="section-header">
+      <h2>Trois agents, un seul objectif</h2>
+      <p>Commencez avec l'essentiel. Ajoutez les autres quand vous êtes prêt.</p>
+    </div>
+    <div class="products-grid" id="tarifs">
+
+      <div class="product-card card-hover">
+        <div class="product-icon blue"><span>💬</span></div>
+        <h3>Agent SAV</h3>
+        <p class="product-tagline">Répond aux questions 24/7</p>
+        <p class="product-desc">Horaires, prestations, tarifs, adresse. L'agent répond instantanément sur votre site ou via un lien partageable.</p>
+        <div class="product-pricing">
+          <p class="product-price">150 CHF <span>installation</span></p>
+          <p class="product-abo">puis <strong>19 CHF/mois</strong> — résiliable à tout moment</p>
+          <p class="product-note green">✓ Essai gratuit 2 semaines disponible</p>
+        </div>
+        <button onclick="ouvrirModal('sav')" class="btn-product">Commander →</button>
+      </div>
+
+      <div class="product-card card-hover featured">
+        <span class="product-badge">POPULAIRE</span>
+        <div class="product-icon blue-filled"><span>📅</span></div>
+        <h3>Agent Prise de RDV</h3>
+        <p class="product-tagline">Réservations automatiques</p>
+        <p class="product-desc">L'agent prend les RDV en direct, synchronise avec votre Google Calendar, envoie les confirmations. Vous ne passez plus 1h/jour au téléphone.</p>
+        <div class="product-pricing">
+          <p class="product-price">290 CHF <span>installation</span></p>
+          <p class="product-abo">puis <strong>39 CHF/mois</strong> — résiliable à tout moment</p>
+          <p class="product-note blue">✓ Inclus : Agent SAV + Booking</p>
+        </div>
+        <button onclick="ouvrirModal('rdv')" class="btn-product">Commander →</button>
+      </div>
+
+      <div class="product-card card-hover">
+        <div class="product-icon amber"><span>🎯</span></div>
+        <h3>Agent Lead Qualif.</h3>
+        <p class="product-tagline">Pour agences &amp; PME</p>
+        <p class="product-desc">L'agent qualifie vos leads entrants, filtre les prospects froids, transmet uniquement les demandes chaudes avec résumé à votre équipe.</p>
+        <div class="product-pricing">
+          <p class="product-price">490 CHF <span>installation</span></p>
+          <p class="product-abo">puis <strong>79 CHF/mois</strong> — résiliable à tout moment</p>
+          <p class="product-note amber">✓ Intégration CRM disponible</p>
+        </div>
+        <button onclick="ouvrirModal('lead')" class="btn-product dark">Commander →</button>
+      </div>
+    </div>
+    <div class="pricing-note">
+      💡 <strong>Pourquoi une installation + un abonnement ?</strong> L'installation couvre le travail de configuration (3-5h). L'abonnement couvre l'hébergement et le coût de l'IA qui répond à vos clients chaque mois. Zéro frais cachés.
+    </div>
+  </div>
+</section>
+
+<!-- ═══ COMMENT ÇA MARCHE ═══ -->
+<section id="comment" class="comment">
+  <div class="comment-inner">
+    <div class="section-header">
+      <h2>En 3 étapes, votre agent est en ligne</h2>
+      <p>De la démo à la mise en ligne : 3 à 5 jours.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <h3>Démo en 15 min</h3>
+        <p>On se parle en visio ou sur place. Je vous montre un exemple live adapté à votre commerce.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <h3>Configuration</h3>
+        <p>Vous m'envoyez vos infos (horaires, prestations, tarifs). Je configure l'agent pour vous.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <h3>Mise en ligne</h3>
+        <p>L'agent est actif sur votre site ou WhatsApp. Vous pouvez le modifier à tout moment.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TÉMOIGNAGES ═══ -->
+<section id="temoignages" class="temoignages">
+  <div class="temoignages-inner">
+    <div class="section-header">
+      <h2>Ce qu'en disent les commerçants</h2>
+      <p id="temoignages-subtitle">Les premiers témoignages arrivent bientôt — les pilotes sont en cours.</p>
+    </div>
+    <div id="temoignages-grid" class="temoignages-grid"></div>
+    <div id="temoignages-empty" class="temoignages-empty">
+      <div class="temoignages-empty-emoji">🌱</div>
+      <h3>Les premiers avis arrivent bientôt</h3>
+      <p>TrivexIA est en phase de lancement. Les premiers clients pilotes testent actuellement l'agent.</p>
+      <p class="temoignages-empty-cta">Vous êtes commerçant ? Devenez l'un des premiers à tester gratuitement →</p>
+      <button onclick="ouvrirModal('sav')" class="btn-product" style="display:inline-block;width:auto;padding:.65rem 1.5rem;margin-top:.5rem">Tester gratuitement</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ COMMENTAIRES PUBLICS ═══ -->
+<section class="comments-section">
+  <div class="comments-inner">
+    <h2>Laissez un avis</h2>
+    <p class="sub">Partagez votre expérience avec TrivexIA — visible par tous les visiteurs.</p>
+
+    <!-- Formulaire commentaire (si connecté) -->
+    <div id="comment-form-container" class="comment-form" style="display:none">
+      <h3>Votre avis</h3>
+      <div class="star-picker" id="comment-star-picker">
+        <span data-val="1">★</span>
+        <span data-val="2">★</span>
+        <span data-val="3">★</span>
+        <span data-val="4">★</span>
+        <span data-val="5">★</span>
+      </div>
+      <textarea id="comment-texte" rows="4" placeholder="Partagez votre expérience avec TrivexIA..."></textarea>
+      <button class="btn-submit-comment" onclick="submitComment()">Publier mon avis →</button>
+    </div>
+
+    <!-- Prompt connexion (si non connecté) -->
+    <div id="comment-login-prompt" class="comment-login-prompt" style="display:none">
+      🔒 <a onclick="openAuthModal('login')">Connectez-vous</a> ou <a onclick="openAuthModal('register')">créez un compte gratuit</a> pour laisser un avis.
+    </div>
+
+    <!-- Liste des commentaires -->
+    <div id="comments-list" class="comment-list"></div>
+  </div>
+</section>
+
+<!-- ═══ DÉMO CTA ═══ -->
+<section id="demo" class="demo-section">
+  <div class="demo-inner">
+    <h2>Prêt à voir l'agent en action ?</h2>
+    <p class="demo-sub">Démo gratuite de 15 minutes, en visio ou chez vous. Sans engagement.</p>
+
+    <div id="demo-already-note" style="display:none;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:.75rem;padding:1rem;margin-bottom:1.5rem;color:white;font-size:.875rem">
+      ✓ Vous avez déjà envoyé une demande de démo. Nous vous contacterons sous 24h. Si besoin, écrivez directement à <a href="mailto:trivex.ytb@gmail.com" style="color:#bfdbfe;text-decoration:underline">trivex.ytb@gmail.com</a>.
+    </div>
+
+    <form id="demo-form" onsubmit="envoyerViaMailto(event)" class="demo-form-box">
+      <div class="demo-grid">
+        <div>
+          <label class="form-label">Votre commerce</label>
+          <input name="commerce" required type="text" placeholder="Ex: Salon XYZ" />
+        </div>
+        <div>
+          <label class="form-label">Votre prénom</label>
+          <input name="prenom" required type="text" placeholder="Ex: Jean" />
+        </div>
+        <div>
+          <label class="form-label">Email</label>
+          <input name="email" required type="email" placeholder="vous@commerce.ch" />
+        </div>
+        <div>
+          <label class="form-label">Téléphone / WhatsApp</label>
+          <input name="tel" required type="tel" placeholder="+41 76 406 54 92" />
+        </div>
+      </div>
+      <div style="margin-top:1rem">
+        <label class="form-label">Que voulez-vous savoir ? (optionnel)</label>
+        <textarea name="message" rows="3" placeholder="Ex: je me demande si ça marche pour un salon de coiffure..." style="width:100%;border:1.5px solid #e2e8f0;border-radius:.6rem;padding:.75rem 1rem;font-size:.9rem;resize:none;outline:none"></textarea>
+      </div>
+      <button type="submit" id="demo-submit-btn" class="btn-demo-submit">Envoyer la demande</button>
+      <p class="demo-privacy">Réponse sous 24h. Vos données ne sont jamais partagées.</p>
     </form>
-    <p class="mt-8 text-blue-100">Ou contactez directement : <a href="mailto:trivex.ytb@gmail.com" class="underline font-semibold">trivex.ytb@gmail.com</a> · <a href="tel:+41764065492" class="underline font-semibold">+41 76 406 54 92</a></p>
+    <p class="demo-contact">Ou contactez directement : <a href="mailto:trivex.ytb@gmail.com">trivex.ytb@gmail.com</a> · <a href="tel:+41764065492">+41 76 406 54 92</a></p>
   </div>
 </section>
 
-<!-- FAQ -->
-<section class="py-20 bg-white">
-  <div class="max-w-3xl mx-auto px-6">
-    <h2 class="text-3xl md:text-4xl font-bold text-center mb-10 font-display">Questions fréquentes</h2>
-    <div class="space-y-4">
-      <details class="bg-slate-50 rounded-xl p-5 border border-slate-200 group"><summary class="font-semibold cursor-pointer list-none flex justify-between items-center">Pourquoi une installation ET un abonnement ?<span class="group-open:rotate-45 transition text-blue-600 font-bold text-xl">+</span></summary><p class="mt-3 text-slate-600">L'installation (3-5h de travail) configure l'agent. L'abonnement couvre l'hébergement et le coût de l'IA chaque mois. Sans abonnement, l'IA ne fonctionne pas. Zéro frais cachés.</p></details>
-      <details class="bg-slate-50 rounded-xl p-5 border border-slate-200 group"><summary class="font-semibold cursor-pointer list-none flex justify-between items-center">Combien de temps pour installer l'agent ?<span class="group-open:rotate-45 transition text-blue-600 font-bold text-xl">+</span></summary><p class="mt-3 text-slate-600">Entre 3 et 5 jours après validation de vos infos. Je vous envoie un formulaire simple à remplir, puis je configure et teste l'agent avant mise en ligne.</p></details>
-      <details class="bg-slate-50 rounded-xl p-5 border border-slate-200 group"><summary class="font-semibold cursor-pointer list-none flex justify-between items-center">Est-ce qu'il y a un engagement ?<span class="group-open:rotate-45 transition text-blue-600 font-bold text-xl">+</span></summary><p class="mt-3 text-slate-600">Non. L'abonnement est sans engagement, vous pouvez résilier avec 1 mois de préavis. L'installation est facturée une seule fois.</p></details>
-      <details class="bg-slate-50 rounded-xl p-5 border border-slate-200 group"><summary class="font-semibold cursor-pointer list-none flex justify-between items-center">Et si l'agent répond mal à une question ?<span class="group-open:rotate-45 transition text-blue-600 font-bold text-xl">+</span></summary><p class="mt-3 text-slate-600">Vous pouvez me signaler toute réponse inappropriée, je corrige dans les 24h. Pour les sujets sensibles, il redirige automatiquement vers vous.</p></details>
-      <details class="bg-slate-50 rounded-xl p-5 border border-slate-200 group"><summary class="font-semibold cursor-pointer list-none flex justify-between items-center">Je n'ai pas de site web, est-ce que ça marche ?<span class="group-open:rotate-45 transition text-blue-600 font-bold text-xl">+</span></summary><p class="mt-3 text-slate-600">Oui. L'agent peut être accessible via un lien partageable à mettre sur votre profil Google, Instagram, ou Facebook. Il peut aussi être branché directement sur WhatsApp Business.</p></details>
+<!-- ═══ FAQ ═══ -->
+<section class="faq">
+  <div class="faq-inner">
+    <div class="section-header">
+      <h2>Questions fréquentes</h2>
+    </div>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary>Pourquoi une installation ET un abonnement ?<span class="faq-icon">+</span></summary>
+        <p>L'installation (3-5h de travail) configure l'agent. L'abonnement couvre l'hébergement et le coût de l'IA chaque mois. Sans abonnement, l'IA ne fonctionne pas. Zéro frais cachés.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Combien de temps pour installer l'agent ?<span class="faq-icon">+</span></summary>
+        <p>Entre 3 et 5 jours après validation de vos infos. Je vous envoie un formulaire simple à remplir, puis je configure et teste l'agent avant mise en ligne.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Est-ce qu'il y a un engagement ?<span class="faq-icon">+</span></summary>
+        <p>Non. L'abonnement est sans engagement, vous pouvez résilier avec 1 mois de préavis. L'installation est facturée une seule fois.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Et si l'agent répond mal à une question ?<span class="faq-icon">+</span></summary>
+        <p>Vous pouvez me signaler toute réponse inappropriée, je corrige dans les 24h. Pour les sujets sensibles, il redirige automatiquement vers vous.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Je n'ai pas de site web, est-ce que ça marche ?<span class="faq-icon">+</span></summary>
+        <p>Oui. L'agent peut être accessible via un lien partageable à mettre sur votre profil Google, Instagram, ou Facebook. Il peut aussi être branché directement sur WhatsApp Business.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Mes données sont-elles sécurisées ?<span class="faq-icon">+</span></summary>
+        <p>Oui. TrivexIA est conforme à la loi suisse sur la protection des données (nLPD) et au RGPD européen. Vos données personnelles ne sont jamais vendues ni partagées avec des tiers. Vous pouvez demander la suppression de vos données à tout moment en nous contactant.</p>
+      </details>
     </div>
   </div>
 </section>
 
-<!-- FOOTER -->
-<footer class="bg-slate-900 text-slate-400 py-10">
-  <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
-    <div class="flex items-center gap-2">
-      <div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white font-bold text-sm font-display">T</div>
-      <span class="font-bold text-white font-display">TrivexIA</span>
-      <span class="text-sm">· Fribourg, Suisse</span>
+<!-- ═══ CGU / CONFIDENTIALITÉ ═══ -->
+<section id="legal" class="legal-section">
+  <div class="legal-inner">
+    <div class="section-header">
+      <h2>Informations légales</h2>
+      <p>Conformes à la loi fédérale suisse sur la protection des données (nLPD) et au RGPD européen.</p>
     </div>
-    <div class="text-sm">© 2026 · Fait à Fribourg avec ☕ · <a href="mailto:trivex.ytb@gmail.com" class="underline hover:text-white">trivex.ytb@gmail.com</a> · <a href="tel:+41764065492" class="underline hover:text-white">+41 76 406 54 92</a></div>
+    <div class="legal-tabs">
+      <button id="legal-tab-cgu" class="legal-tab active" onclick="switchLegalTab('cgu')">Conditions d'utilisation (CGU)</button>
+      <button id="legal-tab-confidentialite" class="legal-tab" onclick="switchLegalTab('confidentialite')">Politique de confidentialité</button>
+    </div>
+
+    <!-- CGU -->
+    <div id="legal-cgu" class="legal-content active">
+      <h2>Conditions Générales d'Utilisation</h2>
+      <p class="legal-meta">Dernière mise à jour : avril 2026 — TrivexIA, Fribourg, Suisse</p>
+
+      <h3>1. Présentation du service</h3>
+      <p>TrivexIA (ci-après « le Service ») est un service d'agents conversationnels basés sur l'intelligence artificielle, proposé par TrivexIA, à Fribourg (Suisse). Le Service permet aux commerces suisses de déployer un agent IA répondant automatiquement aux questions de leurs clients, via leur site web ou WhatsApp.</p>
+
+      <h3>2. Acceptation des conditions</h3>
+      <p>En utilisant ce site ou en créant un compte, vous acceptez les présentes CGU dans leur intégralité. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser le Service.</p>
+
+      <h3>3. Accès au service</h3>
+      <p>La création d'un compte est requise pour accéder aux fonctionnalités complètes du site (demande de démo, commentaires, commande). Le compte est personnel et non transmissible. Vous êtes responsable de la confidentialité de vos identifiants.</p>
+
+      <h3>4. Essai gratuit et engagement commercial</h3>
+      <p>L'essai gratuit de 2 semaines est soumis aux conditions suivantes :</p>
+      <ul>
+        <li>Un seul essai gratuit par commerce</li>
+        <li>Aucune carte bancaire requise pour l'essai</li>
+        <li>L'essai ne se convertit pas automatiquement en abonnement payant</li>
+        <li>TrivexIA se réserve le droit de refuser ou d'interrompre un essai à sa discrétion</li>
+      </ul>
+
+      <h3>5. Obligations de l'utilisateur</h3>
+      <p>Vous vous engagez à :</p>
+      <ul>
+        <li>Fournir des informations exactes lors de la création de votre compte</li>
+        <li>Ne pas utiliser le Service à des fins illicites ou contraires aux bonnes mœurs</li>
+        <li>Ne pas tenter de contourner les mesures de sécurité du Service</li>
+        <li>Respecter la vie privée des tiers dans vos interactions</li>
+      </ul>
+
+      <h3>6. Propriété intellectuelle</h3>
+      <p>L'ensemble des éléments du site (textes, graphismes, logos, code) est la propriété exclusive de TrivexIA. Toute reproduction, même partielle, est interdite sans autorisation écrite préalable.</p>
+
+      <h3>7. Limitation de responsabilité</h3>
+      <p>TrivexIA ne peut être tenu responsable des dommages directs ou indirects résultant de l'utilisation du Service, d'une interruption temporaire du service, ou de réponses incorrectes générées par l'agent IA. L'agent IA est un outil d'assistance — il ne remplace pas un conseiller humain pour les décisions importantes.</p>
+
+      <h3>8. Résiliation</h3>
+      <p>Vous pouvez résilier votre abonnement à tout moment avec un préavis d'un (1) mois. TrivexIA se réserve le droit de suspendre ou résilier un compte en cas de violation des présentes CGU.</p>
+
+      <h3>9. Droit applicable</h3>
+      <p>Les présentes CGU sont soumises au droit suisse. Tout litige sera soumis à la compétence exclusive des tribunaux du canton de Fribourg, Suisse.</p>
+
+      <h3>10. Contact</h3>
+      <p>Pour toute question concernant ces CGU : <a href="mailto:trivex.ytb@gmail.com">trivex.ytb@gmail.com</a> · +41 76 406 54 92</p>
+    </div>
+
+    <!-- Politique de confidentialité -->
+    <div id="legal-confidentialite" class="legal-content">
+      <h2>Politique de Confidentialité</h2>
+      <p class="legal-meta">Dernière mise à jour : avril 2026 — Conforme nLPD (Suisse) et RGPD (UE)</p>
+
+      <h3>1. Responsable du traitement</h3>
+      <p>TrivexIA, Fribourg, Suisse. Contact : <a href="mailto:trivex.ytb@gmail.com">trivex.ytb@gmail.com</a></p>
+
+      <h3>2. Données collectées</h3>
+      <p>Lors de l'utilisation de notre service, nous pouvons collecter :</p>
+      <ul>
+        <li><strong>Données de compte :</strong> prénom, adresse email (stockés localement dans votre navigateur)</li>
+        <li><strong>Données de contact :</strong> nom du commerce, téléphone (lors de demandes de démo ou de commande, transmis par email)</li>
+        <li><strong>Données de navigation :</strong> cookies techniques uniquement (avec votre consentement)</li>
+        <li><strong>Commentaires :</strong> avis et notes laissés sur notre site (stockés localement)</li>
+      </ul>
+
+      <h3>3. Finalités du traitement</h3>
+      <p>Vos données sont utilisées pour :</p>
+      <ul>
+        <li>Gérer votre compte et vos accès</li>
+        <li>Traiter vos demandes de démo ou commandes</li>
+        <li>Vous contacter en réponse à vos demandes</li>
+        <li>Améliorer notre service</li>
+      </ul>
+
+      <h3>4. Base légale du traitement (nLPD / RGPD)</h3>
+      <p>Le traitement de vos données repose sur : votre consentement explicite (inscription), l'exécution d'un contrat (commandes), et notre intérêt légitime (amélioration du service).</p>
+
+      <h3>5. Stockage et sécurité</h3>
+      <p>Les données de votre compte sont stockées exclusivement dans le localStorage de votre navigateur — elles ne quittent pas votre appareil. Les communications par email sont transmises via votre client email. Aucune donnée n'est stockée sur nos serveurs sans accord préalable.</p>
+
+      <h3>6. Partage des données</h3>
+      <p>TrivexIA ne vend, ne loue et ne partage jamais vos données personnelles avec des tiers à des fins commerciales. Les données peuvent être transmises aux autorités compétentes si la loi l'exige.</p>
+
+      <h3>7. Vos droits (nLPD / RGPD)</h3>
+      <p>Vous disposez des droits suivants :</p>
+      <ul>
+        <li><strong>Droit d'accès :</strong> connaître les données que nous détenons sur vous</li>
+        <li><strong>Droit de rectification :</strong> corriger des données inexactes</li>
+        <li><strong>Droit à l'effacement :</strong> supprimer vos données personnelles</li>
+        <li><strong>Droit à la portabilité :</strong> recevoir vos données dans un format structuré</li>
+        <li><strong>Droit d'opposition :</strong> vous opposer au traitement de vos données</li>
+      </ul>
+      <p>Pour exercer ces droits, contactez-nous : <a href="mailto:trivex.ytb@gmail.com">trivex.ytb@gmail.com</a></p>
+
+      <h3>8. Cookies</h3>
+      <p>Nous utilisons uniquement des cookies techniques strictement nécessaires au fonctionnement du site. Aucun cookie publicitaire ou de tracking tiers n'est utilisé. Vous pouvez refuser les cookies non essentiels via la bannière de consentement.</p>
+
+      <h3>9. Conservation des données</h3>
+      <p>Vos données sont conservées aussi longtemps que nécessaire pour la finalité pour laquelle elles ont été collectées, ou jusqu'à votre demande de suppression.</p>
+
+      <h3>10. Modifications</h3>
+      <p>Cette politique peut être modifiée. Les changements significatifs seront notifiés par email ou sur ce site. La version en vigueur est toujours accessible sur cette page.</p>
+
+      <h3>11. Autorité de contrôle</h3>
+      <p>En cas de litige, vous pouvez contacter le Préposé fédéral à la protection des données et à la transparence (PFPDT) : <a href="https://www.edoeb.admin.ch" target="_blank">www.edoeb.admin.ch</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">
+      <div class="footer-logo-icon">T</div>
+      <span class="footer-logo-text">TrivexIA</span>
+      <span style="font-size:.875rem;margin-left:.25rem">· Fribourg, Suisse</span>
+    </div>
+    <div class="footer-links">
+      <a href="#legal" onclick="switchLegalTab('cgu')">CGU</a>
+      <a href="#legal" onclick="switchLegalTab('confidentialite')">Confidentialité</a>
+      <a href="mailto:trivex.ytb@gmail.com">trivex.ytb@gmail.com</a>
+      <a href="tel:+41764065492">+41 76 406 54 92</a>
+    </div>
+    <p class="footer-copy">© 2026 TrivexIA · Fait à Fribourg avec ☕</p>
   </div>
 </footer>
 
-<script>
-const PRODUITS = {
-  sav:  { nom:'Agent SAV',          desc:'Chatbot 24/7 pour votre commerce',         install:'150 CHF', abo:'19 CHF/mois', note:'✓ Essai gratuit 2 semaines — sans CB requise' },
-  rdv:  { nom:'Agent Prise de RDV', desc:'Réservations automatiques 24/7',            install:'290 CHF', abo:'39 CHF/mois', note:'✓ Inclus : Agent SAV + Booking' },
-  lead: { nom:'Agent Lead Qualif.', desc:'Qualification de leads pour PME & agences', install:'490 CHF', abo:'79 CHF/mois', note:'✓ Intégration CRM disponible' },
-};
-let produitActuel = 'sav';
+<!-- ═══ COOKIE BANNER ═══ -->
+<div id="cookie-banner">
+  <p class="cookie-text">
+    🍪 Nous utilisons des cookies techniques essentiels pour le bon fonctionnement du site. En cliquant « Accepter », vous consentez à leur utilisation. <a href="#legal" onclick="switchLegalTab('confidentialite')">En savoir plus</a>
+  </p>
+  <div class="cookie-btns">
+    <button class="btn-cookie-refuse" onclick="refuseCookies()">Refuser</button>
+    <button class="btn-cookie-accept" onclick="acceptCookies()">Accepter</button>
+  </div>
+</div>
 
-function ouvrirModal(id) {
-  produitActuel = id;
-  const p = PRODUITS[id];
-  document.getElementById('modal-title').textContent = 'Commander — ' + p.nom;
-  document.getElementById('modal-subtitle').textContent = p.install + ' d\'installation + ' + p.abo;
-  document.getElementById('recap-nom').textContent = p.nom;
-  document.getElementById('recap-desc').textContent = p.desc;
-  document.getElementById('recap-install').textContent = p.install;
-  document.getElementById('recap-abo').textContent = p.abo;
-  document.getElementById('recap-note').textContent = p.note;
-  showStep('step-1');
-  document.getElementById('payment-modal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeModal() { document.getElementById('payment-modal').classList.remove('open'); document.body.style.overflow = ''; }
-function closeModalOutside(e) { if (e.target === document.getElementById('payment-modal')) closeModal(); }
-function showStep(id) { document.querySelectorAll('.step').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-function retour(id) { showStep(id); }
-function choisirMode(mode) { showStep(mode === 'pilote' ? 'step-pilote' : 'step-payer'); }
-
-function envoyerPilote() {
-  const prenom = document.getElementById('p-prenom').value.trim();
-  const commerce = document.getElementById('p-commerce').value.trim();
-  const email = document.getElementById('p-email').value.trim();
-  const tel = document.getElementById('p-tel').value.trim();
-  if (!prenom || !commerce || !email || !tel) { alert('Merci de remplir tous les champs.'); return; }
-  const p = PRODUITS[produitActuel];
-  const sujet = `Essai gratuit - ${p.nom} - ${commerce}`;
-  const corps = `Bonjour,\n\nDemande d'essai gratuit pour : ${p.nom}\n\nCommerce : ${commerce}\nPrénom : ${prenom}\nEmail : ${email}\nTél : ${tel}\n\nCordialement,\n${prenom}`;
-  window.open(`mailto:trivex.ytb@gmail.com?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`);
-  document.getElementById('confirm-titre').textContent = 'Demande envoyée ! 🎉';
-  document.getElementById('confirm-texte').textContent = 'Je vous recontacte sous 24h pour votre essai gratuit de ' + p.nom + '.';
-  document.getElementById('confirm-etapes').innerHTML = '<li>Je vous contacte sous 24h</li><li>On fixe un RDV de 15 min</li><li>Je configure votre agent en 3-5 jours</li><li>Vous testez 2 semaines gratuitement</li>';
-  showStep('step-confirm');
-}
-
-function envoyerCommande() {
-  const prenom = document.getElementById('f-prenom').value.trim();
-  const commerce = document.getElementById('f-commerce').value.trim();
-  const email = document.getElementById('f-email').value.trim();
-  const tel = document.getElementById('f-tel').value.trim();
-  if (!prenom || !commerce || !email || !tel) { alert('Merci de remplir tous les champs.'); return; }
-  const p = PRODUITS[produitActuel];
-  const sujet = `Commande - ${p.nom} - ${commerce}`;
-  const corps = `Bonjour,\n\nCommande : ${p.nom} (${p.install} + ${p.abo})\n\nCommerce : ${commerce}\nPrénom : ${prenom}\nEmail : ${email}\nTél : ${tel}\n\nCordialement,\n${prenom}`;
-  window.open(`mailto:trivex.ytb@gmail.com?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`);
-  document.getElementById('confirm-titre').textContent = 'Commande confirmée ! 🎉';
-  document.getElementById('confirm-texte').textContent = 'Je vous envoie la facture sous 24h pour ' + p.nom + ' (' + p.install + ').';
-  document.getElementById('confirm-etapes').innerHTML = '<li>Je vous envoie la facture sous 24h</li><li>Vous payez par virement bancaire</li><li>Installation démarrée après paiement</li><li>Votre agent est en ligne en 3-5 jours</li>';
-  showStep('step-confirm');
-}
-
-function envoyerViaMailto(event) {
-  event.preventDefault();
-  const f = event.target;
-  const d = "trivex.ytb@gmail.com";
-  const commerce = f.commerce.value.trim(), prenom = f.prenom.value.trim();
-  const email = f.email.value.trim(), tel = f.tel.value.trim(), message = f.message.value.trim();
-  const sujet = `Demande de démo - ${commerce}`;
-  const corps = `Bonjour Trivex,\n\nJe souhaite une démo.\n\nCommerce : ${commerce}\nPrénom : ${prenom}\nEmail : ${email}\nTél : ${tel}\n\nMessage :\n${message || "(aucun)"}\n\nMerci,\n${prenom}`;
-  window.location.href = `mailto:${d}?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`;
-  setTimeout(() => { if (navigator.clipboard) navigator.clipboard.writeText(corps).catch(()=>{}); alert("Votre client email devrait s'ouvrir.\n\nSi rien ne se passe, écrivez à " + d); }, 800);
-}
-
-// Admin
-const ADMIN_PASSWORD = "trivex2026";
-let adminUnlocked = false, noteSelectionnee = 5;
-function chargerTemoignages() { return JSON.parse(localStorage.getItem('trivexia_temoignages') || '[]'); }
-function sauvegarderTemoignages(l) { localStorage.setItem('trivexia_temoignages', JSON.stringify(l)); }
-function renderTemoignages() {
-  const list = chargerTemoignages();
-  const grid = document.getElementById('temoignages-grid'), empty = document.getElementById('temoignages-empty'), subtitle = document.getElementById('temoignages-subtitle');
-  grid.innerHTML = '';
-  if (list.length === 0) { empty.style.display = 'block'; subtitle.textContent = 'Les premiers témoignages arrivent bientôt — les pilotes sont en cours.'; return; }
-  empty.style.display = 'none'; subtitle.textContent = list.length + ' avis de commerçants fribourgeois';
-  list.forEach(t => {
-    const etoiles = '★'.repeat(t.note) + '☆'.repeat(5-t.note);
-    const initiales = t.nom.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
-    const card = document.createElement('div');
-    card.className = 'bg-slate-50 rounded-2xl p-8 border border-slate-200';
-    card.innerHTML = `<div class="flex gap-1 text-amber-400 mb-4 text-lg">${etoiles}</div><p class="text-slate-700 italic mb-6">"${t.texte}"</p><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center font-bold text-blue-700 text-sm">${initiales}</div><div><p class="font-bold text-sm">${t.nom}</p><p class="text-xs text-slate-500">${t.commerce}</p></div></div>`;
-    grid.appendChild(card);
-  });
-}
-function toggleAdmin() {
-  document.getElementById('admin-panel').classList.toggle('open');
-  if (!adminUnlocked) { document.getElementById('admin-lock').style.display='block'; document.getElementById('admin-form').classList.add('hidden'); }
-}
-function checkPwd() {
-  if (document.getElementById('admin-pwd').value === ADMIN_PASSWORD) {
-    adminUnlocked=true; document.getElementById('admin-lock').style.display='none'; document.getElementById('admin-form').classList.remove('hidden'); document.getElementById('pwd-error').classList.add('hidden');
-  } else { document.getElementById('pwd-error').classList.remove('hidden'); }
-}
-document.querySelectorAll('#star-selector span').forEach(btn => {
-  btn.addEventListener('click', () => { noteSelectionnee=parseInt(btn.dataset.val); document.querySelectorAll('#star-selector span').forEach((s,i)=>{ s.style.color = i<noteSelectionnee ? '#f59e0b':'#475569'; }); });
-});
-function ajouterTemoignage() {
-  const nom=document.getElementById('t-nom').value.trim(), commerce=document.getElementById('t-commerce').value.trim(), texte=document.getElementById('t-texte').value.trim();
-  if(!nom||!commerce||!texte){alert('Remplis tous les champs !');return;}
-  const list=chargerTemoignages(); list.push({nom,commerce,texte,note:noteSelectionnee}); sauvegarderTemoignages(list); renderTemoignages();
-  document.getElementById('t-nom').value=''; document.getElementById('t-commerce').value=''; document.getElementById('t-texte').value='';
-  alert('Témoignage publié ! ✅'); toggleAdmin();
-}
-function effacerTout() { if(confirm('Supprimer tous les témoignages ?')){localStorage.removeItem('trivexia_temoignages');renderTemoignages();} }
-renderTemoignages();
-</script>
-
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%233b82f6'/%3E%3Ctext x='50' y='68' font-family='Arial' font-size='60' font-weight='bold' text-anchor='middle' fill='white'%3ET%3C/text%3E%3C/svg%3E">
+<script src="script.js"></script>
 </body>
 </html>
