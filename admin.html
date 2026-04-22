@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TrivexIA — Panel Admin</title>
+<link rel="stylesheet" href="style.css" />
+<style>
+  body { background: #0f172a; color: #e2e8f0; min-height: 100vh; font-family: 'DM Sans', sans-serif; }
+  .admin-nav { background: #1e293b; border-bottom: 1px solid #334155; padding: .9rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+  .admin-nav-logo { display: flex; align-items: center; gap: .5rem; }
+  .admin-nav-logo-icon { width: 2rem; height: 2rem; border-radius: .4rem; background: linear-gradient(135deg, #1e3a8a, #3b82f6); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: .8rem; font-family: 'Syne',sans-serif; }
+  .admin-nav-logo-text { font-weight: 700; font-family: 'Syne',sans-serif; }
+  .admin-badge { background: #1e3a8a; color: #93c5fd; font-size: .65rem; font-weight: 700; padding: .2rem .55rem; border-radius: 2rem; border: 1px solid #2563eb; margin-left: .4rem; }
+  .session-info { font-size: .775rem; color: #64748b; }
+  .btn-logout-admin { background: #334155; color: #94a3b8; padding: .45rem 1rem; border-radius: .5rem; font-size: .8rem; font-weight: 600; border: none; cursor: pointer; transition: all .2s; font-family: inherit; }
+  .btn-logout-admin:hover { background: #dc2626; color: white; }
+
+  .admin-layout { display: grid; max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; gap: 2rem; }
+  @media(min-width:900px){ .admin-layout { grid-template-columns: 220px 1fr; } }
+
+  /* Sidebar */
+  .admin-sidebar { display: flex; flex-direction: column; gap: .35rem; }
+  .sidebar-section-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #475569; padding: .5rem .75rem .2rem; }
+  .sidebar-item { display: flex; align-items: center; gap: .6rem; padding: .65rem .85rem; border-radius: .6rem; font-size: .875rem; font-weight: 500; color: #94a3b8; cursor: pointer; transition: all .15s; border: none; background: none; width: 100%; text-align: left; font-family: inherit; }
+  .sidebar-item:hover { background: #1e293b; color: #e2e8f0; }
+  .sidebar-item.active { background: #1e3a8a; color: white; }
+  .sidebar-icon { font-size: 1rem; width: 1.25rem; text-align: center; }
+
+  /* Panels */
+  .admin-panel-content { display: none; }
+  .admin-panel-content.active { display: block; }
+  .panel-title { font-size: 1.4rem; font-weight: 800; font-family: 'Syne',sans-serif; margin-bottom: .4rem; }
+  .panel-sub { font-size: .875rem; color: #64748b; margin-bottom: 2rem; }
+
+  /* Cards */
+  .admin-card { background: #1e293b; border: 1px solid #334155; border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.25rem; }
+  .admin-card h3 { font-size: 1rem; font-weight: 700; font-family: 'Syne',sans-serif; margin-bottom: .35rem; }
+  .admin-card p, .admin-card li { font-size: .875rem; color: #94a3b8; line-height: 1.7; }
+  .admin-card ul, .admin-card ol { padding-left: 1.25rem; display: flex; flex-direction: column; gap: .3rem; }
+  .admin-card a { color: #60a5fa; text-decoration: underline; }
+  .admin-card .tag { display: inline-block; font-size: .7rem; font-weight: 700; padding: .2rem .6rem; border-radius: 2rem; margin-bottom: .75rem; }
+  .tag-blue { background: #1e3a8a; color: #93c5fd; border: 1px solid #2563eb; }
+  .tag-green { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
+  .tag-amber { background: #78350f; color: #fcd34d; border: 1px solid #d97706; }
+  .tag-red { background: #7f1d1d; color: #fca5a5; border: 1px solid #dc2626; }
+
+  /* Checklist */
+  .checklist { display: flex; flex-direction: column; gap: .75rem; margin-top: 1rem; }
+  .checklist-item { display: flex; align-items: flex-start; gap: .85rem; background: #0f172a; border: 1px solid #334155; border-radius: .75rem; padding: 1rem 1.1rem; cursor: pointer; transition: border .2s; }
+  .checklist-item.done { border-color: #16a34a; background: rgba(22,163,74,.05); }
+  .checklist-item.done .check-circle { background: #16a34a; border-color: #16a34a; }
+  .checklist-item.done .check-circle::after { content: '✓'; color: white; font-size: .8rem; font-weight: 700; }
+  .check-circle { width: 1.4rem; height: 1.4rem; border-radius: 50%; border: 2px solid #334155; flex-shrink: 0; margin-top: .15rem; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+  .checklist-item-content h4 { font-size: .9rem; font-weight: 700; margin-bottom: .2rem; }
+  .checklist-item-content p { font-size: .8rem; color: #64748b; line-height: 1.55; }
+  .checklist-item.done .checklist-item-content h4 { color: #86efac; }
+  .checklist-progress { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.25rem; }
+  .progress-bar { flex: 1; height: .4rem; background: #334155; border-radius: 2rem; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #2563eb, #16a34a); border-radius: 2rem; transition: width .4s; }
+  .progress-text { font-size: .8rem; color: #64748b; white-space: nowrap; }
+
+  /* Témoignages admin */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: .75rem; }
+  .admin-input { width: 100%; background: #0f172a; border: 1.5px solid #334155; border-radius: .6rem; padding: .65rem .9rem; color: white; font-size: .875rem; outline: none; transition: border .2s; font-family: inherit; }
+  .admin-input:focus { border-color: #3b82f6; }
+  .admin-input::placeholder { color: #475569; }
+  .admin-textarea { resize: none; }
+  .star-admin { cursor: pointer; font-size: 1.5rem; color: #334155; transition: color .15s; }
+  .star-admin.active { color: #f59e0b; }
+  .btn-admin { padding: .7rem 1.25rem; border-radius: .6rem; font-weight: 700; font-size: .875rem; cursor: pointer; border: none; font-family: inherit; transition: all .2s; }
+  .btn-admin-blue { background: #2563eb; color: white; }
+  .btn-admin-blue:hover { background: #1d4ed8; }
+  .btn-admin-red { background: rgba(220,38,38,.2); color: #fca5a5; border: 1px solid rgba(220,38,38,.3); }
+  .btn-admin-red:hover { background: rgba(220,38,38,.35); }
+  .btn-admin-green { background: rgba(22,163,74,.2); color: #86efac; border: 1px solid rgba(22,163,74,.3); }
+  .btn-admin-green:hover { background: rgba(22,163,74,.35); }
+
+  /* Clients list */
+  .client-item { background: #0f172a; border: 1px solid #334155; border-radius: .75rem; padding: 1rem 1.1rem; margin-bottom: .6rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .5rem; }
+  .client-email { font-size: .875rem; color: #e2e8f0; font-weight: 600; }
+  .client-prenom { font-size: .8rem; color: #64748b; }
+  .client-date { font-size: .75rem; color: #475569; }
+  .client-badge { font-size: .7rem; font-weight: 700; padding: .2rem .55rem; border-radius: 2rem; }
+  .badge-demo { background: #1e3a8a; color: #93c5fd; border: 1px solid #2563eb; }
+  .badge-no-demo { background: #1e293b; color: #475569; border: 1px solid #334155; }
+
+  /* Stats */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .stat-card { background: #0f172a; border: 1px solid #334155; border-radius: .85rem; padding: 1.25rem; text-align: center; }
+  .stat-number { font-size: 2rem; font-weight: 800; font-family: 'Syne',sans-serif; color: #3b82f6; }
+  .stat-label { font-size: .775rem; color: #64748b; margin-top: .25rem; }
+
+  /* Commentaires modération */
+  .comment-admin-item { background: #0f172a; border: 1px solid #334155; border-radius: .75rem; padding: 1rem 1.1rem; margin-bottom: .6rem; }
+  .comment-admin-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: .5rem; flex-wrap: wrap; gap: .4rem; }
+  .comment-admin-meta { font-size: .825rem; color: #e2e8f0; font-weight: 600; }
+  .comment-admin-date { font-size: .75rem; color: #475569; }
+  .comment-admin-stars { font-size: .85rem; color: #f59e0b; margin-bottom: .4rem; }
+  .comment-admin-text { font-size: .85rem; color: #94a3b8; }
+  .comment-admin-actions { display: flex; gap: .4rem; margin-top: .6rem; }
+
+  /* WhatsApp section */
+  .whatsapp-step { background: #0f172a; border: 1px solid #334155; border-radius: .75rem; padding: 1.1rem 1.25rem; margin-bottom: .75rem; }
+  .whatsapp-step-num { display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; border-radius: 50%; background: #25d366; color: white; font-size: .8rem; font-weight: 700; margin-right: .6rem; flex-shrink: 0; }
+  .whatsapp-step-header { display: flex; align-items: center; margin-bottom: .5rem; }
+  .whatsapp-step h4 { font-size: .9rem; font-weight: 700; }
+  .whatsapp-step p, .whatsapp-step li { font-size: .8rem; color: #64748b; line-height: 1.6; }
+  .whatsapp-step ul { padding-left: 1rem; margin-top: .35rem; }
+  .whatsapp-step a { color: #60a5fa; }
+  .code-block { background: #0f172a; border: 1px solid #334155; border-radius: .6rem; padding: .75rem 1rem; font-family: monospace; font-size: .8rem; color: #86efac; margin: .5rem 0; overflow-x: auto; white-space: pre; }
+
+  /* Déploiement à distance */
+  .deploy-step { background: #0f172a; border: 1px solid #334155; border-radius: .75rem; padding: 1.1rem 1.25rem; margin-bottom: .75rem; }
+  .deploy-step-num { display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; border-radius: 50%; background: #2563eb; color: white; font-size: .8rem; font-weight: 700; margin-right: .6rem; flex-shrink: 0; }
+  .deploy-step-header { display: flex; align-items: center; margin-bottom: .5rem; }
+  .deploy-step h4 { font-size: .9rem; font-weight: 700; }
+  .deploy-step p, .deploy-step li { font-size: .8rem; color: #64748b; line-height: 1.6; }
+  .deploy-step ul, .deploy-step ol { padding-left: 1rem; margin-top: .35rem; }
+  .deploy-step a { color: #60a5fa; }
+  .highlight-box { background: rgba(37,99,235,.1); border: 1px solid rgba(37,99,235,.3); border-radius: .6rem; padding: .85rem 1rem; margin: .75rem 0; font-size: .825rem; color: #93c5fd; line-height: 1.6; }
+  .warning-box { background: rgba(217,119,6,.1); border: 1px solid rgba(217,119,6,.3); border-radius: .6rem; padding: .85rem 1rem; margin: .75rem 0; font-size: .8rem; color: #fcd34d; line-height: 1.6; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #0f172a; }
+  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- NAV ADMIN -->
+<nav class="admin-nav">
+  <div class="admin-nav-logo">
+    <div class="admin-nav-logo-icon">T</div>
+    <span class="admin-nav-logo-text">TrivexIA</span>
+    <span class="admin-badge">ADMIN</span>
+  </div>
+  <span class="session-info" id="session-info">Session active</span>
+  <button class="btn-logout-admin" onclick="logoutAdmin()">Déconnexion</button>
+</nav>
+
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <span class="sidebar-section-label">Tableau de bord</span>
+    <button class="sidebar-item active" onclick="showPanel('dashboard')" id="nav-dashboard">
+      <span class="sidebar-icon">📊</span> Vue d'ensemble
+    </button>
+    <button class="sidebar-item" onclick="showPanel('clients')" id="nav-clients">
+      <span class="sidebar-icon">👥</span> Clients
+    </button>
+    <button class="sidebar-item" onclick="showPanel('temoignages')" id="nav-temoignages">
+      <span class="sidebar-icon">⭐</span> Témoignages
+    </button>
+    <button class="sidebar-item" onclick="showPanel('commentaires')" id="nav-commentaires">
+      <span class="sidebar-icon">💬</span> Commentaires
+    </button>
+
+    <span class="sidebar-section-label" style="margin-top:1rem">Configuration</span>
+    <button class="sidebar-item" onclick="showPanel('deploiement')" id="nav-deploiement">
+      <span class="sidebar-icon">🚀</span> Déployer l'agent
+    </button>
+    <button class="sidebar-item" onclick="showPanel('whatsapp')" id="nav-whatsapp">
+      <span class="sidebar-icon">📱</span> WhatsApp
+    </button>
+    <button class="sidebar-item" onclick="showPanel('checklist')" id="nav-checklist">
+      <span class="sidebar-icon">✅</span> Checklist client
+    </button>
+    <button class="sidebar-item" onclick="showPanel('securite')" id="nav-securite">
+      <span class="sidebar-icon">🔐</span> Sécurité
+    </button>
+  </aside>
+
+  <!-- CONTENU PANELS -->
+  <main>
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <div id="panel-dashboard" class="admin-panel-content active">
+      <h1 class="panel-title">Vue d'ensemble</h1>
+      <p class="panel-sub">Bienvenue dans votre panel d'administration TrivexIA.</p>
+
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="stat-number" id="stat-users">0</div><div class="stat-label">Comptes créés</div></div>
+        <div class="stat-card"><div class="stat-number" id="stat-demos">0</div><div class="stat-label">Demandes démo</div></div>
+        <div class="stat-card"><div class="stat-number" id="stat-comments">0</div><div class="stat-label">Commentaires</div></div>
+        <div class="stat-card"><div class="stat-number" id="stat-temoignages">0</div><div class="stat-label">Témoignages</div></div>
+      </div>
+
+      <div class="admin-card">
+        <div class="tag tag-blue">Rappels importants</div>
+        <h3>Actions à faire suite à chaque nouvelle commande</h3>
+        <ul>
+          <li>Répondre au client sous 24h après réception de l'email de commande</li>
+          <li>Envoyer le formulaire de configuration (horaires, services, tarifs du client)</li>
+          <li>Déployer l'agent sur Railway ou Render (voir section « Déployer l'agent »)</li>
+          <li>Configurer WhatsApp Business API si le client le souhaite</li>
+          <li>Tester l'agent avant livraison</li>
+          <li>Cocher les étapes dans la Checklist client</li>
+        </ul>
+      </div>
+
+      <div class="admin-card">
+        <div class="tag tag-amber">À propos du délai 3-5 jours</div>
+        <h3>Que faire concrètement dans les 3-5 jours ?</h3>
+        <p style="margin-bottom:.75rem">Voici le déroulé complet pour tenir ce délai :</p>
+        <ol>
+          <li><strong>Jour 1 :</strong> Contact client, envoi du formulaire d'informations</li>
+          <li><strong>Jour 2 :</strong> Réception des infos client, configuration du script Python (FAQ, horaires, etc.)</li>
+          <li><strong>Jour 3 :</strong> Déploiement sur Railway/Render, tests internes</li>
+          <li><strong>Jour 4 :</strong> Intégration WhatsApp si demandé, tests avec le client</li>
+          <li><strong>Jour 5 :</strong> Mise en production, remise au client avec guide d'utilisation</li>
+        </ol>
+        <p style="margin-top:.75rem">👉 Allez dans <strong>« Déployer l'agent »</strong> et <strong>« WhatsApp »</strong> dans le menu pour les instructions détaillées.</p>
+      </div>
+    </div>
+
+    <!-- ═══ CLIENTS ═══ -->
+    <div id="panel-clients" class="admin-panel-content">
+      <h1 class="panel-title">Clients inscrits</h1>
+      <p class="panel-sub">Liste des comptes créés sur le site.</p>
+      <div id="clients-list"></div>
+    </div>
+
+    <!-- ═══ TÉMOIGNAGES ═══ -->
+    <div id="panel-temoignages" class="admin-panel-content">
+      <h1 class="panel-title">Gérer les témoignages</h1>
+      <p class="panel-sub">Ajoutez ou supprimez des témoignages visibles sur la page principale.</p>
+
+      <div class="admin-card">
+        <h3>Ajouter un témoignage</h3>
+        <div class="form-row" style="margin-top:1rem">
+          <div>
+            <label style="display:block;font-size:.8rem;color:#94a3b8;margin-bottom:.3rem">Prénom Nom</label>
+            <input type="text" id="t-nom" class="admin-input" placeholder="Sophie M." />
+          </div>
+          <div>
+            <label style="display:block;font-size:.8rem;color:#94a3b8;margin-bottom:.3rem">Commerce — Ville</label>
+            <input type="text" id="t-commerce" class="admin-input" placeholder="L&A Coiffure — Fribourg" />
+          </div>
+        </div>
+        <label style="display:block;font-size:.8rem;color:#94a3b8;margin-bottom:.3rem">Témoignage</label>
+        <textarea id="t-texte" rows="3" class="admin-input admin-textarea" style="margin-bottom:.75rem" placeholder="Ce que le client a dit..."></textarea>
+        <label style="display:block;font-size:.8rem;color:#94a3b8;margin-bottom:.5rem">Note</label>
+        <div style="display:flex;gap:.3rem;margin-bottom:1rem" id="star-selector-admin">
+          <span class="star-admin active" data-val="1">★</span>
+          <span class="star-admin active" data-val="2">★</span>
+          <span class="star-admin active" data-val="3">★</span>
+          <span class="star-admin active" data-val="4">★</span>
+          <span class="star-admin active" data-val="5">★</span>
+        </div>
+        <div style="display:flex;gap:.75rem">
+          <button class="btn-admin btn-admin-blue" onclick="ajouterTemoignage()">Publier le témoignage</button>
+          <button class="btn-admin btn-admin-red" onclick="effacerTousTemoignages()">Tout supprimer</button>
+        </div>
+      </div>
+
+      <div id="temoignages-admin-list"></div>
+    </div>
+
+    <!-- ═══ COMMENTAIRES ═══ -->
+    <div id="panel-commentaires" class="admin-panel-content">
+      <h1 class="panel-title">Modérer les commentaires</h1>
+      <p class="panel-sub">Commentaires laissés par les utilisateurs inscrits.</p>
+      <div id="comments-admin-list"></div>
+    </div>
+
+    <!-- ═══ DÉPLOIEMENT ═══ -->
+    <div id="panel-deploiement" class="admin-panel-content">
+      <h1 class="panel-title">Déployer l'agent IA à distance</h1>
+      <p class="panel-sub">Comment mettre en ligne votre script Python pour un client, sans aller chez lui.</p>
+
+      <div class="highlight-box">
+        💡 <strong>Principe :</strong> Votre script Python tourne sur un serveur cloud (Railway ou Render). Le client y accède via un lien ou via WhatsApp. Vous gérez tout depuis votre ordinateur. Aucune installation chez le client.
+      </div>
+
+      <div class="deploy-step">
+        <div class="deploy-step-header">
+          <span class="deploy-step-num">1</span>
+          <h4>Préparer votre script Python</h4>
+        </div>
+        <p>Votre script doit exposer une API HTTP. Ajoutez Flask ou FastAPI :</p>
+        <div class="code-block">pip install flask anthropic
+
+# Dans votre script :
+from flask import Flask, request, jsonify
+import anthropic
+
+app = Flask(__name__)
+client = anthropic.Anthropic(api_key="votre_cle_api")
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    data = request.json
+    message = data.get('message', '')
+    # Votre logique ici
+    response = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=500,
+        messages=[{"role": "user", "content": message}]
+    )
+    return jsonify({"reply": response.content[0].text})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)</div>
+        <p>Créez aussi un fichier <code style="background:#334155;padding:.1rem .35rem;border-radius:.3rem">requirements.txt</code> avec : <code style="background:#334155;padding:.1rem .35rem;border-radius:.3rem">flask</code> et <code style="background:#334155;padding:.1rem .35rem;border-radius:.3rem">anthropic</code></p>
+      </div>
+
+      <div class="deploy-step">
+        <div class="deploy-step-header">
+          <span class="deploy-step-num">2</span>
+          <h4>Déployer sur Railway (recommandé, gratuit au début)</h4>
+        </div>
+        <ul>
+          <li>Allez sur <a href="https://railway.app" target="_blank">railway.app</a> et créez un compte gratuit</li>
+          <li>Cliquez sur <strong>« New Project »</strong> → <strong>« Deploy from GitHub repo »</strong></li>
+          <li>Uploadez votre script (ou connectez GitHub)</li>
+          <li>Dans les <strong>variables d'environnement</strong>, ajoutez : <code style="background:#334155;padding:.1rem .35rem;border-radius:.3rem">ANTHROPIC_API_KEY = votre_clé_api</code></li>
+          <li>Railway détecte Python automatiquement et démarre votre app</li>
+          <li>Vous obtenez une URL publique type <code style="background:#334155;padding:.1rem .35rem;border-radius:.3rem">https://votre-app.railway.app</code></li>
+        </ul>
+        <div class="highlight-box">⚡ Render.com est une alternative gratuite similaire. Allez sur <a href="https://render.com" target="_blank">render.com</a>, créez un « Web Service » et uploadez votre code.</div>
+      </div>
+
+      <div class="deploy-step">
+        <div class="deploy-step-header">
+          <span class="deploy-step-num">3</span>
+          <h4>Personnaliser par client</h4>
+        </div>
+        <p>Pour chaque client, créez un déploiement séparé avec ses infos :</p>
+        <ul>
+          <li>Ajoutez une variable d'env <code style="background:#334155;padding:.1rem .35rem;border-radius:.3rem">CLIENT_NAME</code>, <code style="background:#334155;padding:.1rem .35rem;border-radius:.3rem">CLIENT_INFO</code> (horaires, FAQ, etc.)</li>
+          <li>Ou créez un fichier <code style="background:#334155;padding:.1rem .35rem;border-radius:.3rem">config_client.json</code> par client dans votre repo</li>
+          <li>Chaque client = un projet Railway séparé = une URL séparée</li>
+        </ul>
+      </div>
+
+      <div class="deploy-step">
+        <div class="deploy-step-header">
+          <span class="deploy-step-num">4</span>
+          <h4>Donner accès à l'agent au client</h4>
+        </div>
+        <p>Une fois déployé, le client peut interagir avec son agent de 3 façons :</p>
+        <ul>
+          <li><strong>Lien direct :</strong> Vous lui donnez l'URL Railway. Il peut l'intégrer sur son site ou partager le lien.</li>
+          <li><strong>Widget HTML :</strong> Vous lui fournissez un petit snippet HTML/JS à coller sur son site qui appelle votre API.</li>
+          <li><strong>WhatsApp :</strong> Vous connectez l'URL Railway à WhatsApp Business API (voir section WhatsApp).</li>
+        </ul>
+        <div class="warning-box">⚠️ <strong>Important :</strong> Ne donnez jamais votre clé API Anthropic directement au client. Stockez-la toujours côté serveur (variables d'environnement Railway).</div>
+      </div>
+
+      <div class="deploy-step">
+        <div class="deploy-step-header">
+          <span class="deploy-step-num">5</span>
+          <h4>Sécuriser l'accès (optionnel mais recommandé)</h4>
+        </div>
+        <p>Pour éviter que n'importe qui utilise votre API :</p>
+        <div class="code-block"># Ajoutez un token secret dans les headers
+import os
+
+SECRET_TOKEN = os.environ.get('SECRET_TOKEN', 'mon-token-secret')
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    token = request.headers.get('X-API-Token')
+    if token != SECRET_TOKEN:
+        return jsonify({"error": "Non autorisé"}), 401
+    # ... reste du code</div>
+        <p>Chaque client a son propre token. Vous le changez en modifiant la variable d'env dans Railway.</p>
+      </div>
+    </div>
+
+    <!-- ═══ WHATSAPP ═══ -->
+    <div id="panel-whatsapp" class="admin-panel-content">
+      <h1 class="panel-title">Intégration WhatsApp</h1>
+      <p class="panel-sub">Comment faire répondre votre agent IA automatiquement sur WhatsApp.</p>
+
+      <div class="highlight-box">
+        📱 <strong>L'idée :</strong> Un client envoie un message WhatsApp → WhatsApp transmet le message à votre script Python → Votre script demande à Claude de répondre → La réponse repart sur WhatsApp automatiquement.
+      </div>
+
+      <div class="admin-card" style="margin-bottom:1.25rem">
+        <div class="tag tag-amber">Deux options disponibles</div>
+        <h3>Option A — WhatsApp Business API officielle (recommandé à terme)</h3>
+        <p>Payante après un certain volume, mais officielle et stable. Nécessite un numéro de téléphone dédié.</p>
+        <h3 style="margin-top:1rem">Option B — Twilio WhatsApp (plus simple pour commencer)</h3>
+        <p>Twilio propose un bac à sable (sandbox) WhatsApp gratuit pour tester. Idéal pour démarrer.</p>
+      </div>
+
+      <p style="font-size:.875rem;color:#93c5fd;font-weight:700;margin-bottom:1rem">👇 Option B (Twilio) — Le chemin le plus rapide :</p>
+
+      <div class="whatsapp-step">
+        <div class="whatsapp-step-header">
+          <span class="whatsapp-step-num">1</span>
+          <h4>Créer un compte Twilio</h4>
+        </div>
+        <ul>
+          <li>Allez sur <a href="https://www.twilio.com" target="_blank">twilio.com</a> et créez un compte gratuit</li>
+          <li>Dans le dashboard, allez dans <strong>Messaging → Try it out → Send a WhatsApp message</strong></li>
+          <li>Suivez les instructions pour rejoindre le sandbox (vous envoyez un code par WhatsApp)</li>
+          <li>Récupérez votre <strong>Account SID</strong> et <strong>Auth Token</strong> dans le dashboard</li>
+        </ul>
+      </div>
+
+      <div class="whatsapp-step">
+        <div class="whatsapp-step-header">
+          <span class="whatsapp-step-num">2</span>
+          <h4>Modifier votre script Python</h4>
+        </div>
+        <p>Ajoutez la librairie Twilio et créez un webhook :</p>
+        <div class="code-block">pip install twilio
+
+from twilio.rest import Client as TwilioClient
+from twilio.twiml.messaging_response import MessagingResponse
+
+TWILIO_SID = os.environ.get('TWILIO_SID')
+TWILIO_TOKEN = os.environ.get('TWILIO_TOKEN')
+TWILIO_FROM = 'whatsapp:+14155238886'  # Numéro sandbox Twilio
+
+@app.route('/whatsapp', methods=['POST'])
+def whatsapp_webhook():
+    incoming_msg = request.form.get('Body', '').strip()
+    sender = request.form.get('From', '')
+    
+    # Demander à Claude de répondre
+    response_claude = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=500,
+        system="Tu es l'assistant IA du commerce XYZ...",
+        messages=[{"role": "user", "content": incoming_msg}]
+    )
+    reply_text = response_claude.content[0].text
+    
+    # Renvoyer sur WhatsApp
+    resp = MessagingResponse()
+    resp.message(reply_text)
+    return str(resp), 200, {'Content-Type': 'text/xml'}</div>
+      </div>
+
+      <div class="whatsapp-step">
+        <div class="whatsapp-step-header">
+          <span class="whatsapp-step-num">3</span>
+          <h4>Connecter Twilio à votre URL Railway</h4>
+        </div>
+        <ul>
+          <li>Déployez votre script mis à jour sur Railway</li>
+          <li>Dans Twilio Dashboard → WhatsApp Sandbox → <strong>« When a message comes in »</strong></li>
+          <li>Entrez : <code style="background:#334155;padding:.1rem .35rem;border-radius:.3rem">https://votre-app.railway.app/whatsapp</code></li>
+          <li>Méthode : <strong>HTTP POST</strong></li>
+          <li>Cliquez <strong>Save</strong></li>
+        </ul>
+      </div>
+
+      <div class="whatsapp-step">
+        <div class="whatsapp-step-header">
+          <span class="whatsapp-step-num">4</span>
+          <h4>Pour un numéro WhatsApp réel (client final)</h4>
+        </div>
+        <p>Le sandbox Twilio utilise un numéro partagé. Pour un numéro dédié au client :</p>
+        <ul>
+          <li>Option 1 : <strong>WhatsApp Business API via Meta</strong> → <a href="https://business.whatsapp.com" target="_blank">business.whatsapp.com</a>. Nécessite une approbation Meta (1-2 semaines).</li>
+          <li>Option 2 : <strong>Twilio payant</strong> avec un numéro WhatsApp approuvé (~25$/mois)</li>
+          <li>Option 3 : <strong>360dialog</strong> (partenaire WhatsApp plus simple) → <a href="https://360dialog.com" target="_blank">360dialog.com</a></li>
+        </ul>
+        <div class="warning-box">⚠️ Pour la phase de lancement, le sandbox Twilio suffit amplement pour faire des démos et tester avec vos premiers clients.</div>
+      </div>
+
+      <div class="whatsapp-step">
+        <div class="whatsapp-step-header">
+          <span class="whatsapp-step-num">5</span>
+          <h4>Variables d'environnement à configurer dans Railway</h4>
+        </div>
+        <div class="code-block">ANTHROPIC_API_KEY=votre_clé_anthropic
+TWILIO_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_TOKEN=votre_auth_token_twilio
+CLIENT_NAME=Salon XYZ
+CLIENT_INFO=Ouvert lun-ven 9h-19h, sam 9h-17h...</div>
+      </div>
+    </div>
+
+    <!-- ═══ CHECKLIST ═══ -->
+    <div id="panel-checklist" class="admin-panel-content">
+      <h1 class="panel-title">Checklist d'installation client</h1>
+      <p class="panel-sub">Cochez les étapes au fur et à mesure pour chaque nouveau client.</p>
+
+      <div class="admin-card" style="margin-bottom:1.25rem">
+        <label style="font-size:.8rem;color:#94a3b8;display:block;margin-bottom:.4rem">Nom du client en cours</label>
+        <input type="text" id="client-en-cours" class="admin-input" placeholder="Ex: Salon Dupont — Fribourg" style="max-width:340px" />
+        <button class="btn-admin btn-admin-blue" style="margin-top:.6rem" onclick="resetChecklist()">Nouveau client (réinitialiser)</button>
+      </div>
+
+      <div class="checklist-progress">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        <span class="progress-text" id="progress-text">0 / 12 étapes</span>
+      </div>
+
+      <div class="checklist" id="checklist-container">
+        <!-- Générée par JS -->
+      </div>
+    </div>
+
+    <!-- ═══ SÉCURITÉ ═══ -->
+    <div id="panel-securite" class="admin-panel-content">
+      <h1 class="panel-title">Sécurité du panel admin</h1>
+      <p class="panel-sub">Informations sur la protection de votre accès admin.</p>
+
+      <div class="admin-card">
+        <div class="tag tag-green">Protections actives</div>
+        <h3>Mécanismes de sécurité en place</h3>
+        <ul>
+          <li>✅ Authentification en 2 étapes (mot de passe + PIN)</li>
+          <li>✅ Mots de passe hashés en SHA-256 (jamais stockés en clair)</li>
+          <li>✅ Blocage temporaire après 5 tentatives échouées (15 minutes)</li>
+          <li>✅ Session expirante automatiquement après 30 minutes d'inactivité</li>
+          <li>✅ Redirection automatique si accès direct sans token</li>
+          <li>✅ Token de session unique généré à chaque connexion</li>
+        </ul>
+      </div>
+
+      <div class="admin-card">
+        <div class="tag tag-amber">Comment changer vos identifiants</div>
+        <h3>Modifier le mot de passe ou le PIN</h3>
+        <p style="margin-bottom:.75rem">Pour changer vos identifiants, vous devez générer un nouveau hash SHA-256. Procédure :</p>
+        <ol>
+          <li>Ouvrez n'importe quelle page de votre site dans Chrome/Firefox</li>
+          <li>Ouvrez la console développeur (F12 → onglet Console)</li>
+          <li>Tapez la commande suivante (en remplaçant "VotreNouveauMotDePasse") :</li>
+        </ol>
+        <div class="code-block">await crypto.subtle.digest('SHA-256', new TextEncoder().encode('VotreNouveauMotDePasse'))
+  .then(b => Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join(''))</div>
+        <ol start="4">
+          <li>Copiez le résultat (une longue chaîne de caractères)</li>
+          <li>Ouvrez <code style="background:#0f172a;padding:.1rem .35rem;border-radius:.3rem">admin-login.html</code> dans un éditeur</li>
+          <li>Remplacez la valeur de <code style="background:#0f172a;padding:.1rem .35rem;border-radius:.3rem">ADMIN_PWD_HASH</code> ou <code style="background:#0f172a;padding:.1rem .35rem;border-radius:.3rem">ADMIN_PIN_HASH</code></li>
+        </ol>
+      </div>
+
+      <div class="admin-card">
+        <div class="tag tag-blue">Identifiants actuels</div>
+        <h3>Vos identifiants par défaut</h3>
+        <p>Ces identifiants sont définis dans <code style="background:#0f172a;padding:.1rem .35rem;border-radius:.3rem">admin-login.html</code>. Changez-les dès que possible !</p>
+        <div class="code-block">Nom d'utilisateur : admin
+Mot de passe     : AgentSAV2024!
+PIN              : 7391</div>
+        <div class="warning-box">⚠️ Changez ces identifiants avant de mettre le site en ligne ! Utilisez la procédure ci-dessus.</div>
+      </div>
+
+      <div class="admin-card">
+        <div class="tag tag-red">Limites importantes à connaître</div>
+        <h3>Ce que cette protection ne couvre pas</h3>
+        <ul>
+          <li>Un fichier HTML statique reste lisible par n'importe qui avec un éditeur de texte — ne stockez jamais de vraies données sensibles (numéros bancaires, clés d'API) dans ces fichiers.</li>
+          <li>Les données clients sont dans le localStorage du navigateur — si quelqu'un a accès physique à votre ordinateur, il peut les lire.</li>
+          <li>Pour une vraie sécurité production, hébergez sur un vrai serveur avec authentification backend (Node.js + JWT, ou Firebase Auth).</li>
+        </ul>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* ── Vérification session admin ── */
+function checkAdminSession() {
+  const raw = localStorage.getItem('trivex_admin_session');
+  if (!raw) { window.location.href = 'admin-login.html'; return false; }
+  try {
+    const session = JSON.parse(raw);
+    if (!session.token || !session.expires || Date.now() > session.expires) {
+      localStorage.removeItem('trivex_admin_session');
+      window.location.href = 'admin-login.html';
+      return false;
+    }
+    // Renouveler la session à chaque interaction
+    session.expires = Date.now() + 30 * 60 * 1000;
+    localStorage.setItem('trivex_admin_session', JSON.stringify(session));
+    const elapsed = Math.round((Date.now() - session.createdAt) / 60000);
+    document.getElementById('session-info').textContent = `Session active · expire dans ${Math.round((session.expires - Date.now()) / 60000)} min`;
+    return true;
+  } catch { window.location.href = 'admin-login.html'; return false; }
+}
+
+function logoutAdmin() {
+  localStorage.removeItem('trivex_admin_session');
+  window.location.href = 'admin-login.html';
+}
+
+/* ── Navigation panels ── */
+function showPanel(name) {
+  document.querySelectorAll('.admin-panel-content').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'clients') renderClients();
+  if (name === 'temoignages') renderTemoignagesAdmin();
+  if (name === 'commentaires') renderCommentsAdmin();
+  if (name === 'dashboard') renderStats();
+  if (name === 'checklist') renderChecklist();
+}
+
+/* ── DB helpers ── */
+const DB = { get: k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set: (k,v) => localStorage.setItem(k, JSON.stringify(v)) };
+
+/* ── Stats ── */
+function renderStats() {
+  const users = DB.get('trivex_users') || {};
+  const demos = DB.get('trivex_demos') || {};
+  const comments = DB.get('trivex_comments') || [];
+  const temoignages = DB.get('trivexia_temoignages') || [];
+  document.getElementById('stat-users').textContent = Object.keys(users).length;
+  document.getElementById('stat-demos').textContent = Object.keys(demos).length;
+  document.getElementById('stat-comments').textContent = comments.length;
+  document.getElementById('stat-temoignages').textContent = temoignages.length;
+}
+
+/* ── Clients ── */
+function renderClients() {
+  const users = DB.get('trivex_users') || {};
+  const demos = DB.get('trivex_demos') || {};
+  const container = document.getElementById('clients-list');
+  const entries = Object.values(users);
+  if (entries.length === 0) {
+    container.innerHTML = '<div style="color:#475569;font-size:.875rem;padding:2rem;text-align:center">Aucun client inscrit pour l\'instant.</div>';
+    return;
+  }
+  container.innerHTML = entries.map(u => `
+    <div class="client-item">
+      <div>
+        <div class="client-email">${u.email}</div>
+        <div class="client-prenom">${u.prenom}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+        <span class="client-badge ${demos[u.email] ? 'badge-demo' : 'badge-no-demo'}">${demos[u.email] ? '✓ Démo demandée' : 'Pas de démo'}</span>
+        <span class="client-date">${new Date(u.createdAt).toLocaleDateString('fr-CH')}</span>
+        <button onclick="deleteUser('${u.email}')" style="background:rgba(220,38,38,.15);color:#fca5a5;border:1px solid rgba(220,38,38,.3);padding:.3rem .65rem;border-radius:.4rem;font-size:.75rem;cursor:pointer;font-family:inherit">Supprimer</button>
+      </div>
+    </div>`).join('');
+}
+
+function deleteUser(email) {
+  if (!confirm(`Supprimer le compte ${email} ?`)) return;
+  const users = DB.get('trivex_users') || {};
+  delete users[email];
+  DB.set('trivex_users', users);
+  renderClients();
+}
+
+/* ── Témoignages admin ── */
+let noteAdminTemoignage = 5;
+function renderTemoignagesAdmin() {
+  const list = DB.get('trivexia_temoignages') || [];
+  const container = document.getElementById('temoignages-admin-list');
+  if (list.length === 0) { container.innerHTML = '<div style="color:#475569;font-size:.875rem;padding:1rem">Aucun témoignage publié.</div>'; return; }
+  container.innerHTML = list.map((t, i) => `
+    <div class="comment-admin-item">
+      <div class="comment-admin-header">
+        <div>
+          <div class="comment-admin-meta">${t.nom}</div>
+          <div class="comment-admin-date">${t.commerce}</div>
+        </div>
+        <button onclick="deleteTemoignage(${i})" style="background:rgba(220,38,38,.15);color:#fca5a5;border:1px solid rgba(220,38,38,.3);padding:.3rem .65rem;border-radius:.4rem;font-size:.75rem;cursor:pointer;font-family:inherit">Supprimer</button>
+      </div>
+      <div class="comment-admin-stars">${'★'.repeat(t.note)}${'☆'.repeat(5-t.note)}</div>
+      <div class="comment-admin-text">${t.texte}</div>
+    </div>`).join('');
+}
+
+function deleteTemoignage(i) {
+  const list = DB.get('trivexia_temoignages') || [];
+  list.splice(i, 1);
+  DB.set('trivexia_temoignages', list);
+  renderTemoignagesAdmin();
+}
+
+document.querySelectorAll('#star-selector-admin .star-admin').forEach((s, i) => {
+  s.addEventListener('click', () => {
+    noteAdminTemoignage = i + 1;
+    document.querySelectorAll('#star-selector-admin .star-admin').forEach((st, j) => st.classList.toggle('active', j < noteAdminTemoignage));
+  });
+});
+
+function ajouterTemoignage() {
+  const nom = document.getElementById('t-nom').value.trim();
+  const commerce = document.getElementById('t-commerce').value.trim();
+  const texte = document.getElementById('t-texte').value.trim();
+  if (!nom || !commerce || !texte) { alert('Remplis tous les champs !'); return; }
+  const list = DB.get('trivexia_temoignages') || [];
+  list.push({ nom, commerce, texte, note: noteAdminTemoignage });
+  DB.set('trivexia_temoignages', list);
+  document.getElementById('t-nom').value = '';
+  document.getElementById('t-commerce').value = '';
+  document.getElementById('t-texte').value = '';
+  alert('Témoignage publié ✅');
+  renderTemoignagesAdmin();
+}
+
+function effacerTousTemoignages() {
+  if (confirm('Supprimer TOUS les témoignages ?')) {
+    DB.set('trivexia_temoignages', []);
+    renderTemoignagesAdmin();
+  }
+}
+
+/* ── Commentaires admin ── */
+function renderCommentsAdmin() {
+  const comments = DB.get('trivex_comments') || [];
+  const container = document.getElementById('comments-admin-list');
+  if (comments.length === 0) { container.innerHTML = '<div style="color:#475569;font-size:.875rem;padding:1rem">Aucun commentaire pour l\'instant.</div>'; return; }
+  container.innerHTML = [...comments].reverse().map((c, i) => {
+    const realI = comments.length - 1 - i;
+    return `<div class="comment-admin-item">
+      <div class="comment-admin-header">
+        <div>
+          <div class="comment-admin-meta">${c.prenom} <span style="color:#475569;font-weight:400;font-size:.8rem">(${c.email})</span></div>
+          <div class="comment-admin-date">${new Date(c.createdAt).toLocaleDateString('fr-CH')}</div>
+        </div>
+        <button onclick="deleteComment(${realI})" style="background:rgba(220,38,38,.15);color:#fca5a5;border:1px solid rgba(220,38,38,.3);padding:.3rem .65rem;border-radius:.4rem;font-size:.75rem;cursor:pointer;font-family:inherit">Supprimer</button>
+      </div>
+      <div class="comment-admin-stars">${'★'.repeat(c.note)}${'☆'.repeat(5-c.note)}</div>
+      <div class="comment-admin-text">${c.texte}</div>
+    </div>`;
+  }).join('');
+}
+
+function deleteComment(i) {
+  const comments = DB.get('trivex_comments') || [];
+  comments.splice(i, 1);
+  DB.set('trivex_comments', comments);
+  renderCommentsAdmin();
+}
+
+/* ── Checklist ── */
+const CHECKLIST_ITEMS = [
+  { id: 1, title: 'Répondre au client sous 24h', desc: 'Confirmer la réception de la commande ou de la demande de démo par email.' },
+  { id: 2, title: 'Envoyer le formulaire d\'infos', desc: 'Préparer et envoyer un formulaire avec les questions : horaires, prestations, tarifs, FAQ, ton du commerce, langue(s).' },
+  { id: 3, title: 'Réception des infos client', desc: 'Le client vous a retourné le formulaire rempli. Toutes les infos nécessaires sont disponibles.' },
+  { id: 4, title: 'Configuration du script Python', desc: 'Adapter le system prompt de Claude avec les infos du client (horaires, FAQ, etc.).' },
+  { id: 5, title: 'Créer le projet Railway / Render', desc: 'Créer un nouveau projet d\'hébergement dédié à ce client avec le bon nom.' },
+  { id: 6, title: 'Configurer les variables d\'environnement', desc: 'Ajouter ANTHROPIC_API_KEY, CLIENT_NAME, CLIENT_INFO, SECRET_TOKEN dans Railway.' },
+  { id: 7, title: 'Déploiement et tests internes', desc: 'Déployer le script, tester 10+ questions pour vérifier les réponses. Corriger si besoin.' },
+  { id: 8, title: 'Intégration WhatsApp (si demandé)', desc: 'Configurer Twilio Sandbox ou WhatsApp Business API et connecter le webhook.' },
+  { id: 9, title: 'Test avec le client', desc: 'Partager l\'URL de test au client, recueillir ses retours, faire les ajustements.' },
+  { id: 10, title: 'Corrections finales', desc: 'Appliquer les dernières modifications demandées par le client.' },
+  { id: 11, title: 'Mise en production officielle', desc: 'L\'agent est validé, la mise en ligne est confirmée avec le client.' },
+  { id: 12, title: 'Envoi du guide d\'utilisation', desc: 'Envoyer au client les infos pour contacter son agent, et vos coordonnées pour le support.' },
+];
+
+function getChecklistState() { return DB.get('trivex_checklist') || {}; }
+function saveChecklistState(s) { DB.set('trivex_checklist', s); }
+
+function renderChecklist() {
+  const state = getChecklistState();
+  const done = Object.values(state).filter(Boolean).length;
+  const total = CHECKLIST_ITEMS.length;
+  document.getElementById('progress-fill').style.width = (done / total * 100) + '%';
+  document.getElementById('progress-text').textContent = `${done} / ${total} étapes`;
+
+  const container = document.getElementById('checklist-container');
+  container.innerHTML = CHECKLIST_ITEMS.map(item => `
+    <div class="checklist-item ${state[item.id] ? 'done' : ''}" onclick="toggleChecklistItem(${item.id})">
+      <div class="check-circle"></div>
+      <div class="checklist-item-content">
+        <h4>${item.title}</h4>
+        <p>${item.desc}</p>
+      </div>
+    </div>`).join('');
+}
+
+function toggleChecklistItem(id) {
+  const state = getChecklistState();
+  state[id] = !state[id];
+  saveChecklistState(state);
+  renderChecklist();
+}
+
+function resetChecklist() {
+  if (confirm('Réinitialiser toutes les étapes pour un nouveau client ?')) {
+    DB.set('trivex_checklist', {});
+    renderChecklist();
+  }
+}
+
+/* ── Init ── */
+window.addEventListener('DOMContentLoaded', () => {
+  if (!checkAdminSession()) return;
+  renderStats();
+  renderChecklist();
+  // Renouveler session toutes les minutes
+  setInterval(checkAdminSession, 60000);
+});
+</script>
+</body>
+</html>
